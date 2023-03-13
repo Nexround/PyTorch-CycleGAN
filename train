@@ -17,6 +17,11 @@ from utils import LambdaLR
 from utils import weights_init_normal
 from datasets import ImageDataset
 import sys
+
+import warnings
+
+warnings.filterwarnings("error", message="Using a target size")
+
 n_cpu = 0 if sys.platform == 'win32' else 8
 
 parser = argparse.ArgumentParser()
