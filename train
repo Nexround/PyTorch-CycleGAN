@@ -7,7 +7,6 @@ from torchvision.transforms import InterpolationMode
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
-from PIL import Image
 import torch
 
 from models import Generator
@@ -17,6 +16,8 @@ from utils import LambdaLR
 # from utils import Logger
 from utils import weights_init_normal
 from datasets import ImageDataset
+import sys
+n_cpu = 0 if sys.platform == 'win32' else 8
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epoch', type=int, default=0, help='starting epoch')
@@ -31,7 +32,7 @@ parser.add_argument('--size', type=int, default=256, help='size of the data crop
 parser.add_argument('--input_nc', type=int, default=3, help='number of channels of input data')
 parser.add_argument('--output_nc', type=int, default=3, help='number of channels of output data')
 parser.add_argument('--cuda', default=True, action='store_true', help='use GPU computation')
-parser.add_argument('--n_cpu', type=int, default=8, help='number of cpu threads to use during batch generation')
+parser.add_argument('--n_cpu', type=int, default=n_cpu, help='number of cpu threads to use during batch generation')
 parser.add_argument('--use_wandb', default=False, action='store_true', help='use wandb for logging')
 opt = parser.parse_args()
 print(opt)
