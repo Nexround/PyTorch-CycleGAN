@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/train",
             "console": "integratedTerminal",
-            "args": ["--trainA", "E:\\datasets\\face_100_256px_converted_96", "--trainB", "E:\\datasets\\anime_100_96px", "--batchSize", "1"]
+            "args": ["--trainA", "E:\\datasets\\face_100_256px_converted_96", "--trainB", "E:\\datasets\\anime_100_96px", "--batchSize", "2"]
         }
         
     ]
