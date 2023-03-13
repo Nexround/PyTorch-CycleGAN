@@ -18,10 +18,6 @@ from utils import LambdaLR
 from utils import weights_init_normal
 from datasets import ImageDataset
 
-#wandb setup
-import wandb
-wandb.init(project="cleanCycleGAN")
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--epoch', type=int, default=0, help='starting epoch')
 parser.add_argument('--n_epochs', type=int, default=200, help='number of epochs of training')
@@ -36,8 +32,15 @@ parser.add_argument('--input_nc', type=int, default=3, help='number of channels 
 parser.add_argument('--output_nc', type=int, default=3, help='number of channels of output data')
 parser.add_argument('--cuda', default=True, action='store_true', help='use GPU computation')
 parser.add_argument('--n_cpu', type=int, default=8, help='number of cpu threads to use during batch generation')
+parser.add_argument('--use_wandb', default=False, action='store_true', help='use wandb for logging')
 opt = parser.parse_args()
 print(opt)
+
+if opt.use_wandb:
+    #wandb setup
+    import wandb
+    wandb.init(project="cleanCycleGAN")
+    wandb.config.update(opt)
 
 if torch.cuda.is_available() and not opt.cuda:
     print("WARNING: You have a CUDA device, so you should probably run with --cuda")
@@ -180,19 +183,19 @@ for epoch in range(opt.epoch, opt.n_epochs):
         # photo_group = [real_A, real_B, fake_A, fake_B, recovered_A, recovered_B, same_A, same_B]
         # for i in photo_group:
         #     wandb.log
-    wandb.log({'Real A':wandb.Image(real_A, caption="Real A", grouping="photo")})
-    wandb.log({'Real B':wandb.Image(real_B, caption="Real B", grouping="photo")})
-    wandb.log({'Fake A':wandb.Image(fake_A, caption="Fake A", grouping="photo")})
-    wandb.log({'Fake B':wandb.Image(fake_B, caption="Fake B", grouping="photo")})
-    wandb.log({'Recovered A':wandb.Image(recovered_A, caption="Recovered A", grouping="photo")})
-    wandb.log({'Recovered B':wandb.Image(recovered_B, caption="Recovered B", grouping="photo")})
-    wandb.log({'Same A':wandb.Image(same_A, caption="Same A", grouping="photo")})
-    wandb.log({'Same B':wandb.Image(same_B, caption="Same B", grouping="photo")})
-    
-    # Progress report (http://localhost:8097)
-    wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
-                'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}, 
-                )
+    if opt.use_wandb:
+        wandb.log({'Real A':wandb.Image(real_A, caption="Real A", grouping="photo")})
+        wandb.log({'Real B':wandb.Image(real_B, caption="Real B", grouping="photo")})
+        wandb.log({'Fake A':wandb.Image(fake_A, caption="Fake A", grouping="photo")})
+        wandb.log({'Fake B':wandb.Image(fake_B, caption="Fake B", grouping="photo")})
+        wandb.log({'Recovered A':wandb.Image(recovered_A, caption="Recovered A", grouping="photo")})
+        wandb.log({'Recovered B':wandb.Image(recovered_B, caption="Recovered B", grouping="photo")})
+        wandb.log({'Same A':wandb.Image(same_A, caption="Same A", grouping="photo")})
+        wandb.log({'Same B':wandb.Image(same_B, caption="Same B", grouping="photo")})
+        
+        wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
+                    'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}, 
+                    )
 
     # Update learning rates
     lr_scheduler_G.step()
