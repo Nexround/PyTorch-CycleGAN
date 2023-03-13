@@ -16,6 +16,14 @@ class ImageDataset(Dataset):
         # self.files_B = sorted(glob.glob(os.path.join(root, '%sB' % mode) + '/*.*'))
 
     def __getitem__(self, index):
+        """Return a data point and its metadata information.
+
+        Parameters:
+            index - - a random integer for data indexing
+
+        Returns:
+            a dictionary of data with their names. It ususally contains the data itself and its metadata information.
+        """
         item_A = self.transform(Image.open(self.files_A[index % len(self.files_A)]).convert('RGB'))
 
         if self.unaligned:
@@ -26,4 +34,6 @@ class ImageDataset(Dataset):
         return {'A': item_A, 'B': item_B}
 
     def __len__(self):
+        """Return the total number of images in the dataset."""
+
         return max(len(self.files_A), len(self.files_B))
