@@ -27,7 +27,7 @@ n_cpu = 0 if sys.platform == 'win32' else 8
 parser = argparse.ArgumentParser()
 parser.add_argument('--epoch', type=int, default=0, help='starting epoch')
 parser.add_argument('--n_epochs', type=int, default=200, help='number of epochs of training')
-parser.add_argument('--batchSize', type=int, default=1, help='size of the batches')
+parser.add_argument('--batch_size', type=int, default=1, help='size of the batches')
 parser.add_argument('--dataroot', type=str, default='datasets/horse2zebra/', help='root directory of the dataset')
 parser.add_argument('--trainA', type=str, help='trainA directory')
 parser.add_argument('--trainB', type=str, help='trainB directory')
@@ -86,12 +86,12 @@ lr_scheduler_D_B = torch.optim.lr_scheduler.LambdaLR(optimizer_D_B, lr_lambda=La
 
 # Inputs & targets memory allocation
 Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
-input_A = Tensor(opt.batchSize, opt.input_nc, opt.size, opt.size)
-input_B = Tensor(opt.batchSize, opt.output_nc, opt.size, opt.size)
-# target_real = Variable(Tensor(opt.batchSize).fill_(1.0), requires_grad=False)
-target_real = Tensor(opt.batchSize, 1).fill_(1.0)
-# target_fake = Variable(Tensor(opt.batchSize).fill_(0.0), requires_grad=False)
-target_fake = Tensor(opt.batchSize, 1).fill_(0.0)
+input_A = Tensor(opt.batch_size, opt.input_nc, opt.size, opt.size)
+input_B = Tensor(opt.batch_size, opt.output_nc, opt.size, opt.size)
+# target_real = Variable(Tensor(opt.batch_size).fill_(1.0), requires_grad=False)
+target_real = Tensor(opt.batch_size, 1).fill_(1.0)
+# target_fake = Variable(Tensor(opt.batch_size).fill_(0.0), requires_grad=False)
+target_fake = Tensor(opt.batch_size, 1).fill_(0.0)
 
 fake_A_buffer = ReplayBuffer()
 fake_B_buffer = ReplayBuffer()
@@ -103,7 +103,7 @@ transforms_ = [ transforms.Resize(int(opt.size*1.12), interpolation=Interpolatio
                 transforms.ToTensor(),
                 transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)) ]
 dataloader = DataLoader(ImageDataset(opt.trainA, opt.trainB, transforms_=transforms_, unaligned=True), 
-                        batch_size=opt.batchSize, shuffle=True, num_workers=opt.n_cpu)
+                        batch_size=opt.batch_size, shuffle=True, num_workers=opt.n_cpu)
 
 # Loss plot
 # logger = Logger(opt.n_epochs, len(dataloader))
