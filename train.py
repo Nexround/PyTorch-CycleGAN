@@ -174,8 +174,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
         optimizer_D_B.step()
         ###################################
-        # for i in photo_group:
-        #     wandb.log
+
     if opt.use_wandb:        
         img_dict = {"Real A":real_A, "Real B":real_B, "Fake A":fake_A, "Fake B":fake_B, "Recovered A":recovered_A, "Recovered B":recovered_B, "Same A":same_A, "Same B":same_B}
         ims_dict = {}
