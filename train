@@ -17,31 +17,7 @@ from utils import LambdaLR
 # from utils import Logger
 from utils import weights_init_normal
 from datasets import ImageDataset
-import sys
 
-import warnings
-
-warnings.filterwarnings("error", message="Using a target size")
-
-n_cpu = 0 if sys.platform == 'win32' else 8
-
-# parser = argparse.ArgumentParser()
-# parser.add_argument('--epoch', type=int, default=0, help='starting epoch')
-# parser.add_argument('--n_epochs', type=int, default=200, help='number of epochs of training')
-# parser.add_argument('--batch_size', type=int, default=1, help='size of the batches')
-# parser.add_argument('--dataroot', type=str, default='datasets/horse2zebra/', help='root directory of the dataset')
-# parser.add_argument('--trainA', type=str, help='trainA directory')
-# parser.add_argument('--trainB', type=str, help='trainB directory')
-# parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate')
-# parser.add_argument('--decay_epoch', type=int, default=100, help='epoch to start linearly decaying the learning rate to 0')
-# parser.add_argument('--size', type=int, default=256, help='size of the data crop (squared assumed)')
-# parser.add_argument('--input_nc', type=int, default=3, help='number of channels of input data')
-# parser.add_argument('--output_nc', type=int, default=3, help='number of channels of output data')
-# parser.add_argument('--cuda', default=True, action='store_true', help='use GPU computation')
-# parser.add_argument('--n_cpu', type=int, default=n_cpu, help='number of cpu threads to use during batch generation')
-# parser.add_argument('--use_wandb', default=False, action='store_true', help='use wandb for logging')
-# opt = parser.parse_args()
-# print(opt)
 opt = BaseOptions().parse()
 
 if opt.use_wandb:
@@ -117,9 +93,10 @@ for epoch in range(opt.epoch, opt.n_epochs):
     for i, batch in enumerate(dataloader):
         # Set model input
         
-        real_A = batch['A'].to('cuda') # 必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size
+        real_A = batch['A'].to('cuda') 
         real_B = batch['B'].to('cuda')
-        if real_A.shape[0] != opt.batch_size:
+        if real_A.shape[0] != opt.batch_size: 
+            """必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size"""
             continue
         # real_A = Variable(input_A.copy_(batch['A']))
         # real_B = Variable(input_B.copy_(batch['B']))
@@ -195,18 +172,19 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
         optimizer_D_B.step()
         ###################################
-        # photo_group = [real_A, real_B, fake_A, fake_B, recovered_A, recovered_B, same_A, same_B]
         # for i in photo_group:
         #     wandb.log
     if opt.use_wandb:
-        wandb.log({'Real A':wandb.Image(real_A, caption="Real A", grouping="photo")})
-        wandb.log({'Real B':wandb.Image(real_B, caption="Real B", grouping="photo")})
-        wandb.log({'Fake A':wandb.Image(fake_A, caption="Fake A", grouping="photo")})
-        wandb.log({'Fake B':wandb.Image(fake_B, caption="Fake B", grouping="photo")})
-        wandb.log({'Recovered A':wandb.Image(recovered_A, caption="Recovered A", grouping="photo")})
-        wandb.log({'Recovered B':wandb.Image(recovered_B, caption="Recovered B", grouping="photo")})
-        wandb.log({'Same A':wandb.Image(same_A, caption="Same A", grouping="photo")})
-        wandb.log({'Same B':wandb.Image(same_B, caption="Same B", grouping="photo")})
+        photo_group = {"Real A":real_A, "Real B":real_B, "Fake A":fake_A, "Fake B":fake_B, "Recovered A":recovered_A, "Recovered B":recovered_B, "Same A":same_A, "Same B":same_B}
+
+        wandb.log(photo_group)
+        # wandb.log({'Real B':wandb.Image(real_B, caption="Real B", grouping="photo")})
+        # wandb.log({'Fake A':wandb.Image(fake_A, caption="Fake A", grouping="photo")})
+        # wandb.log({'Fake B':wandb.Image(fake_B, caption="Fake B", grouping="photo")})
+        # wandb.log({'Recovered A':wandb.Image(recovered_A, caption="Recovered A", grouping="photo")})
+        # wandb.log({'Recovered B':wandb.Image(recovered_B, caption="Recovered B", grouping="photo")})
+        # wandb.log({'Same A':wandb.Image(same_A, caption="Same A", grouping="photo")})
+        # wandb.log({'Same B':wandb.Image(same_B, caption="Same B", grouping="photo")})
         
         wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
                     'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}, 
