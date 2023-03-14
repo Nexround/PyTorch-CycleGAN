@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import itertools
+from tqdm import tqdm
+
 from torchvision.transforms import InterpolationMode
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
@@ -91,8 +93,7 @@ dataloader = DataLoader(ImageDataset(opt.trainA, opt.trainB, transforms_=transfo
 
 ###### Training ######
 for epoch in range(opt.epoch, opt.n_epochs):
-    print(epoch)
-    for i, batch in enumerate(dataloader):
+    for batch in tqdm(dataloader):
         if batch['A'].shape[0] != opt.batch_size: 
             """必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size"""
             continue
