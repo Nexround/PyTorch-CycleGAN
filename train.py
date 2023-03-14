@@ -180,10 +180,6 @@ for epoch in range(opt.epoch, opt.n_epochs):
         #     wandb.log
     if opt.use_wandb:        
         img_dict = {"Real A":real_A, "Real B":real_B, "Fake A":fake_A, "Fake B":fake_B, "Recovered A":recovered_A, "Recovered B":recovered_B, "Same A":same_A, "Same B":same_B}
-
-        # columns.insert(0, 'Epoch')
-        # table_row = [epoch]
-
         ims_dict = {}
         for label, image in img_dict.items(): # 遍历字典 使用.items()方法
             image_numpy = tensor2im(image)
@@ -199,11 +195,10 @@ for epoch in range(opt.epoch, opt.n_epochs):
         # wandb.log({'Recovered B':wandb.Image(recovered_B, caption="Recovered B", grouping="photo")})
         # wandb.log({'Same A':wandb.Image(same_A, caption="Same A", grouping="photo")})
         # wandb.log({'Same B':wandb.Image(same_B, caption="Same B", grouping="photo")})
-        wandb.log({"Log": result_table})
         wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
                     'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}, 
                     )
-
+    
     # Update learning rates
     lr_scheduler_G.step()
     lr_scheduler_D_A.step()
@@ -215,3 +210,6 @@ for epoch in range(opt.epoch, opt.n_epochs):
     torch.save(netD_A.state_dict(), 'output/netD_A.pth')
     torch.save(netD_B.state_dict(), 'output/netD_B.pth')
 ###################################
+if opt.use_wandb: 
+    wandb.log({"Log": result_table})
+
