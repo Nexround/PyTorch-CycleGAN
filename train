@@ -89,9 +89,9 @@ Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
 input_A = Tensor(opt.batch_size, opt.input_nc, opt.size, opt.size)
 input_B = Tensor(opt.batch_size, opt.output_nc, opt.size, opt.size)
 # target_real = Variable(Tensor(opt.batch_size).fill_(1.0), requires_grad=False)
-target_real = Tensor(opt.batch_size, 1).fill_(1.0)
+# target_real = Tensor(opt.batch_size, 1).fill_(1.0) # 必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size
 # target_fake = Variable(Tensor(opt.batch_size).fill_(0.0), requires_grad=False)
-target_fake = Tensor(opt.batch_size, 1).fill_(0.0)
+# target_fake = Tensor(opt.batch_size, 1).fill_(0.0)
 
 fake_A_buffer = ReplayBuffer()
 fake_B_buffer = ReplayBuffer()
@@ -114,7 +114,10 @@ for epoch in range(opt.epoch, opt.n_epochs):
     print(epoch)
     for i, batch in enumerate(dataloader):
         # Set model input
-        real_A = batch['A'].to('cuda')
+        target_real = Tensor(len(batch), 1).fill_(1.0)
+        target_fake = Tensor(len(batch), 1).fill_(0.0)
+
+        real_A = batch['A'].to('cuda') # 必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size
         real_B = batch['B'].to('cuda')
         # real_A = Variable(input_A.copy_(batch['A']))
         # real_B = Variable(input_B.copy_(batch['B']))
