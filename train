@@ -16,6 +16,7 @@ from utils import ReplayBuffer
 from utils import LambdaLR
 # from utils import Logger
 from utils import weights_init_normal
+from utils import tensor2im
 from datasets import ImageDataset
 
 opt = BaseOptions().parse()
@@ -176,8 +177,12 @@ for epoch in range(opt.epoch, opt.n_epochs):
         #     wandb.log
     if opt.use_wandb:
         photo_group = {"Real A":real_A, "Real B":real_B, "Fake A":fake_A, "Fake B":fake_B, "Recovered A":recovered_A, "Recovered B":recovered_B, "Same A":same_A, "Same B":same_B}
-
-        wandb.log(photo_group)
+        ims_dict = {}
+        for label, image in enumerate(photo_group):
+            image_numpy = tensor2im(image)
+            wandb_image = wandb.Image(image_numpy)
+            ims_dict[label] = wandb_image
+        wandb.log(ims_dict)
         # wandb.log({'Real B':wandb.Image(real_B, caption="Real B", grouping="photo")})
         # wandb.log({'Fake A':wandb.Image(fake_A, caption="Fake A", grouping="photo")})
         # wandb.log({'Fake B':wandb.Image(fake_B, caption="Fake B", grouping="photo")})
