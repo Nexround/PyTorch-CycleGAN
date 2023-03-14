@@ -7,11 +7,11 @@ from PIL import Image
 import torchvision.transforms as transforms
 
 class ImageDataset(Dataset):
-    def __init__(self, trainA, trainB, transforms_=None, unaligned=False, mode='train'):
+    def __init__(self, A, B, transforms_=None, unaligned=False, mode='train'):
         self.transform = transforms.Compose(transforms_)
         self.unaligned = unaligned
-        self.files_A = sorted(glob.glob(trainA + '/*.*'))
-        self.files_B = sorted(glob.glob(trainB + '/*.*'))
+        self.files_A = sorted(glob.glob(A + '/*.*'))
+        self.files_B = sorted(glob.glob(B + '/*.*'))
         # self.files_A = sorted(glob.glob(os.path.join(root, '%sA' % mode) + '/*.*'))
         # self.files_B = sorted(glob.glob(os.path.join(root, '%sB' % mode) + '/*.*'))
 
