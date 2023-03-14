@@ -6,7 +6,6 @@ from tqdm import tqdm
 from torchvision.transforms import InterpolationMode
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
-from torch.autograd import Variable
 import torch
 from options.base_options import BaseOptions
 
@@ -14,7 +13,6 @@ from models import Generator
 from models import Discriminator
 from utils import ReplayBuffer
 from utils import LambdaLR
-# from utils import Logger
 from utils import weights_init_normal
 from utils import tensor2im
 from datasets import ImageDataset
@@ -187,14 +185,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
             ims_dict[label] = wandb_image
         img_list = ims_dict.values()
         result_table.add_data(epoch, *img_list)
-        # wandb.log(ims_dict)
-        # wandb.log({'Real B':wandb.Image(real_B, caption="Real B", grouping="photo")})
-        # wandb.log({'Fake A':wandb.Image(fake_A, caption="Fake A", grouping="photo")})
-        # wandb.log({'Fake B':wandb.Image(fake_B, caption="Fake B", grouping="photo")})
-        # wandb.log({'Recovered A':wandb.Image(recovered_A, caption="Recovered A", grouping="photo")})
-        # wandb.log({'Recovered B':wandb.Image(recovered_B, caption="Recovered B", grouping="photo")})
-        # wandb.log({'Same A':wandb.Image(same_A, caption="Same A", grouping="photo")})
-        # wandb.log({'Same B':wandb.Image(same_B, caption="Same B", grouping="photo")})
+
         wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
                     'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}, 
                     )

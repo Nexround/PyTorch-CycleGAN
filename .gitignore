@@ -109,3 +109,4 @@ output/B/
 # model checkpoints
 *.pth
 .vscode/launch.json
+.vscode/settings.json
