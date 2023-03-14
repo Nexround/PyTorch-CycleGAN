@@ -22,8 +22,7 @@ opt = BaseOptions().parse()
 if opt.use_wandb:
     #wandb setup
     import wandb
-    wandb.init(project="cleanCycleGAN")
-    wandb.config.update(opt)
+    wandb.init(project="cleanCycleGAN", name=opt.name, config=opt)
     columns = ["Epoch", "Real A", "Real B", "Fake A", "Fake B", "Recovered A", "Recovered B", "Same A", "Same B"]
     result_table = wandb.Table(columns)
 

@@ -32,6 +32,8 @@ class BaseOptions():
         parser.add_argument('--cuda', default=True, action='store_true', help='use GPU computation')
         parser.add_argument('--n_cpu', type=int, default=self.n_cpu, help='number of cpu threads to use during batch generation')
         parser.add_argument('--use_wandb', default=False, action='store_true', help='use wandb for logging')
+        parser.add_argument('--name', type=str, help='name of run in wandb')
+
         self.initialized = True
         return parser
     
