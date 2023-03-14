@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
-import argparse
 import itertools
-
 from torchvision.transforms import InterpolationMode
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
@@ -26,6 +24,9 @@ if opt.use_wandb:
     import wandb
     wandb.init(project="cleanCycleGAN")
     wandb.config.update(opt)
+    columns = ["Epoch", "Real A", "Real B", "Fake A", "Fake B", "Recovered A", "Recovered B", "Same A", "Same B"]
+    result_table = wandb.Table(columns)
+
 
 if torch.cuda.is_available() and not opt.cuda:
     print("WARNING: You have a CUDA device, so you should probably run with --cuda")
@@ -92,13 +93,14 @@ dataloader = DataLoader(ImageDataset(opt.trainA, opt.trainB, transforms_=transfo
 for epoch in range(opt.epoch, opt.n_epochs):
     print(epoch)
     for i, batch in enumerate(dataloader):
+        if batch['A'].shape[0] != opt.batch_size: 
+            """必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size"""
+            continue
         # Set model input
         
         real_A = batch['A'].to('cuda') 
         real_B = batch['B'].to('cuda')
-        if real_A.shape[0] != opt.batch_size: 
-            """必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size"""
-            continue
+
         # real_A = Variable(input_A.copy_(batch['A']))
         # real_B = Variable(input_B.copy_(batch['B']))
 
@@ -175,14 +177,20 @@ for epoch in range(opt.epoch, opt.n_epochs):
         ###################################
         # for i in photo_group:
         #     wandb.log
-    if opt.use_wandb:
-        photo_group = {"Real A":real_A, "Real B":real_B, "Fake A":fake_A, "Fake B":fake_B, "Recovered A":recovered_A, "Recovered B":recovered_B, "Same A":same_A, "Same B":same_B}
+    if opt.use_wandb:        
+        img_dict = {"Real A":real_A, "Real B":real_B, "Fake A":fake_A, "Fake B":fake_B, "Recovered A":recovered_A, "Recovered B":recovered_B, "Same A":same_A, "Same B":same_B}
+
+        # columns.insert(0, 'Epoch')
+        # table_row = [epoch]
+
         ims_dict = {}
-        for label, image in enumerate(photo_group):
+        for label, image in img_dict.items(): # 遍历字典 使用.items()方法
             image_numpy = tensor2im(image)
             wandb_image = wandb.Image(image_numpy)
             ims_dict[label] = wandb_image
-        wandb.log(ims_dict)
+        img_list = ims_dict.values()
+        result_table.add_data(epoch, *img_list)
+        # wandb.log(ims_dict)
         # wandb.log({'Real B':wandb.Image(real_B, caption="Real B", grouping="photo")})
         # wandb.log({'Fake A':wandb.Image(fake_A, caption="Fake A", grouping="photo")})
         # wandb.log({'Fake B':wandb.Image(fake_B, caption="Fake B", grouping="photo")})
@@ -190,7 +198,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
         # wandb.log({'Recovered B':wandb.Image(recovered_B, caption="Recovered B", grouping="photo")})
         # wandb.log({'Same A':wandb.Image(same_A, caption="Same A", grouping="photo")})
         # wandb.log({'Same B':wandb.Image(same_B, caption="Same B", grouping="photo")})
-        
+        wandb.log({"Log": result_table})
         wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
                     'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}, 
                     )
