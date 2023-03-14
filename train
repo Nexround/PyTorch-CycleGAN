@@ -114,11 +114,11 @@ for epoch in range(opt.epoch, opt.n_epochs):
     print(epoch)
     for i, batch in enumerate(dataloader):
         # Set model input
-        target_real = Tensor(len(batch), 1).fill_(1.0)
-        target_fake = Tensor(len(batch), 1).fill_(0.0)
 
         real_A = batch['A'].to('cuda') # 必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size
         real_B = batch['B'].to('cuda')
+        target_real = Tensor(len(real_A), 1).fill_(1.0)
+        target_fake = Tensor(len(real_B), 1).fill_(0.0)
         # real_A = Variable(input_A.copy_(batch['A']))
         # real_B = Variable(input_B.copy_(batch['B']))
 
