@@ -77,6 +77,8 @@ fake_B_buffer = ReplayBuffer()
 transforms_ = [ transforms.Resize(int(opt.size*1.12), interpolation=InterpolationMode.BICUBIC), 
                 transforms.RandomCrop(opt.size), 
                 transforms.RandomHorizontalFlip(),
+                transforms.RandomAffine(degrees=0, shear=(-30,30)),
+                transforms.RandomRotation((-60,60)),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)) ]
 dataloader = DataLoader(ImageDataset(opt, transforms_=transforms_, unaligned=True), 
@@ -181,7 +183,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
             ims_dict[label] = wandb_image
         img_list = ims_dict.values()
         result_table.add_data(epoch, *img_list)
-
+        wandb.log(wandb.Image(fake_B))
         wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
                     'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}, 
                     )
