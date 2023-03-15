@@ -8,9 +8,8 @@ from modeling.conv_blocks import ConvBlock
 
 
 class Generator(nn.Module):
-    def __init__(self, dataset=''):
+    def __init__(self):
         super(Generator, self).__init__()
-        self.name = f'generator_{dataset}'
         bias = False
 
         self.encode_blocks = nn.Sequential(
@@ -48,7 +47,7 @@ class Generator(nn.Module):
 
         self.initialize_weights(self)
 
-    def initialize_weights(net):
+    def initialize_weights(self,net):
         for m in net.modules():
             try:
                 if isinstance(m, nn.Conv2d):
