@@ -29,6 +29,7 @@ class BaseOptions():
         parser.add_argument('--size', type=int, default=256, help='size of the data crop (squared assumed)')
         parser.add_argument('--input_nc', type=int, default=3, help='number of channels of input data')
         parser.add_argument('--output_nc', type=int, default=3, help='number of channels of output data')
+        parser.add_argument('--max_dataset_size', type=int, default=float("inf"), help='Maximum number of samples allowed per dataset. If the dataset directory contains more than max_dataset_size, only a subset is loaded.')
         parser.add_argument('--cuda', default=True, action='store_true', help='use GPU computation')
         parser.add_argument('--n_cpu', type=int, default=self.n_cpu, help='number of cpu threads to use during batch generation')
         parser.add_argument('--use_wandb', default=False, action='store_true', help='use wandb for logging')

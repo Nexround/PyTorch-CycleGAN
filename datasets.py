@@ -7,11 +7,12 @@ from PIL import Image
 import torchvision.transforms as transforms
 
 class ImageDataset(Dataset):
-    def __init__(self, A, B, transforms_=None, unaligned=False, mode='train'):
+    def __init__(self, opt, transforms_=None, unaligned=False, mode='train'):
+        self.opt = opt
         self.transform = transforms.Compose(transforms_)
         self.unaligned = unaligned
-        self.files_A = sorted(glob.glob(A + '/*.*'))
-        self.files_B = sorted(glob.glob(B + '/*.*'))
+        self.files_A = sorted(glob.glob(self.opt.A + '/*.*'))
+        self.files_B = sorted(glob.glob(self.opt.B + '/*.*'))
         # self.files_A = sorted(glob.glob(os.path.join(root, '%sA' % mode) + '/*.*'))
         # self.files_B = sorted(glob.glob(os.path.join(root, '%sB' % mode) + '/*.*'))
 
@@ -36,4 +37,4 @@ class ImageDataset(Dataset):
     def __len__(self):
         """Return the total number of images in the dataset."""
 
-        return max(len(self.files_A), len(self.files_B))
+        return max(len(self.files_A), len(self.files_B), self.opt.max_dataset_size)

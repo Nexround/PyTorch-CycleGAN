@@ -81,7 +81,7 @@ transforms_ = [ transforms.Resize(int(opt.size*1.12), interpolation=Interpolatio
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)) ]
-dataloader = DataLoader(ImageDataset(opt.A, opt.B, transforms_=transforms_, unaligned=True), 
+dataloader = DataLoader(ImageDataset(opt, transforms_=transforms_, unaligned=True), 
                         batch_size=opt.batch_size, shuffle=True, num_workers=opt.n_cpu)
 
 # Loss plot
