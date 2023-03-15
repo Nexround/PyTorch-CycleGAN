@@ -85,7 +85,7 @@ def initialize_weights(net):
 class Discriminator(nn.Module):
     def __init__(self,  args):
         super(Discriminator, self).__init__()
-        self.name = f'discriminator_{args.dataset}'
+        # self.name = f'discriminator_{args.dataset}'
         self.bias = False
         channels = 32
 
@@ -94,7 +94,7 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(0.2, True)
         ]
 
-        for i in range(args.d_layers):
+        for i in range(3):
             layers += [
                 nn.Conv2d(channels, channels * 2, kernel_size=3, stride=2, padding=1, bias=self.bias),
                 nn.LeakyReLU(0.2, True),
@@ -111,7 +111,7 @@ class Discriminator(nn.Module):
             nn.Conv2d(channels, 1, kernel_size=3, stride=1, padding=1, bias=self.bias),
         ]
 
-        if args.use_sn:
+        if True:
             for i in range(len(layers)):
                 if isinstance(layers[i], nn.Conv2d):
                     layers[i] = spectral_norm(layers[i])
