@@ -12,10 +12,7 @@ from options.base_options import BaseOptions
 # from models import Generator
 from modeling.anime_gan import Generator
 from models import Discriminator
-from utils import ReplayBuffer
-from utils import LambdaLR
-from utils import weights_init_normal
-from utils import tensor2im
+from utils.common import *
 from datasets import ImageDataset
 
 opt = BaseOptions().parse()

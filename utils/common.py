@@ -1,5 +1,75 @@
 from torch import nn
+import random
 
+from torch.autograd import Variable
+import torch
+import numpy as np
+
+def tensor2image(tensor):
+    image = 127.5*(tensor[0].cpu().float().numpy() + 1.0)
+    if image.shape[0] == 1:
+        image = np.tile(image, (3,1,1))
+    return image.astype(np.uint8)
+
+class ReplayBuffer():
+    def __init__(self, max_size=50):
+        assert (max_size > 0), 'Empty buffer or trying to create a black hole. Be careful.'
+        self.max_size = max_size
+        self.data = []
+
+    def push_and_pop(self, data):
+        to_return = []
+        for element in data.data:
+            element = torch.unsqueeze(element, 0)
+            if len(self.data) < self.max_size:
+                self.data.append(element)
+                to_return.append(element)
+            else:
+                if random.uniform(0,1) > 0.5:
+                    i = random.randint(0, self.max_size-1)
+                    to_return.append(self.data[i].clone())
+                    self.data[i] = element
+                else:
+                    to_return.append(element)
+        return Variable(torch.cat(to_return))
+
+class LambdaLR():
+    def __init__(self, n_epochs, offset, decay_start_epoch):
+        assert ((n_epochs - decay_start_epoch) > 0), "Decay must start before the training session ends!"
+        self.n_epochs = n_epochs
+        self.offset = offset
+        self.decay_start_epoch = decay_start_epoch
+
+    def step(self, epoch):
+        return 1.0 - max(0, epoch + self.offset - self.decay_start_epoch)/(self.n_epochs - self.decay_start_epoch)
+
+def weights_init_normal(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find('BatchNorm2d') != -1:
+        torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
+        torch.nn.init.constant(m.bias.data, 0.0)
+
+def tensor2im(input_image, imtype=np.uint8):
+    """"Converts a Tensor array into a numpy image array.
+
+    Parameters:
+        input_image (tensor) --  the input image tensor array
+        imtype (type)        --  the desired type of the converted numpy array
+    """
+    if not isinstance(input_image, np.ndarray):
+        if isinstance(input_image, torch.Tensor):  # get the data from a variable
+            image_tensor = input_image.data
+        else:
+            return input_image
+        image_numpy = image_tensor[0].cpu().float().numpy()  # convert it into a numpy array
+        if image_numpy.shape[0] == 1:  # grayscale to RGB
+            image_numpy = np.tile(image_numpy, (3, 1, 1))
+        image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0  # post-processing: tranpose and scaling
+    else:  # if it is a numpy array, do nothing
+        image_numpy = input_image
+    return image_numpy.astype(imtype)
 def initialize_weights(net):
     for m in net.modules():
         try:
