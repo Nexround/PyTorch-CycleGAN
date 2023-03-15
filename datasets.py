@@ -37,4 +37,4 @@ class ImageDataset(Dataset):
     def __len__(self):
         """Return the total number of images in the dataset."""
 
-        return max(len(self.files_A), len(self.files_B), self.opt.max_dataset_size)
+        return min(len(self.files_A), len(self.files_B), self.opt.max_dataset_size)
