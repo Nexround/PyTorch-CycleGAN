@@ -203,5 +203,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
     torch.save(netD_B.state_dict(), 'output/netD_B.pth')
 ###################################
 if opt.use_wandb: 
+    wandb.save('output/netG_A2B.pth')
+    wandb.save('output/netG_B2A.pth')
     wandb.log({"Log": result_table})
 
