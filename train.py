@@ -110,12 +110,12 @@ for epoch in range(opt.epoch, opt.n_epochs):
         loss_identity_B = criterion_identity(same_B, real_B)*5.0
         # G_B2A(A) should equal A if real A is fed
         same_A = netG_B2A(real_A)
-        loss_identity_A = criterion_identity(same_A, real_A)
+        loss_identity_A = criterion_identity(same_A, real_A)*5.0
 
         # GAN loss
         fake_B = netG_A2B(real_A)
         pred_fake = netD_B(fake_B)
-        loss_GAN_A2B = criterion_GAN(pred_fake, target_real)*10.0
+        loss_GAN_A2B = criterion_GAN(pred_fake, target_real)
 
         fake_A = netG_B2A(real_B)
         pred_fake = netD_A(fake_A)
@@ -123,10 +123,10 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
         # Cycle loss
         recovered_A = netG_B2A(fake_B)
-        loss_cycle_ABA = criterion_cycle(recovered_A, real_A)*5.0 # used to be 10.0
+        loss_cycle_ABA = criterion_cycle(recovered_A, real_A)*10.0
 
         recovered_B = netG_A2B(fake_A)
-        loss_cycle_BAB = criterion_cycle(recovered_B, real_B) # used to be 10.0
+        loss_cycle_BAB = criterion_cycle(recovered_B, real_B)*10.0
 
         # Total loss
         # loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB
