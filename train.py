@@ -204,10 +204,10 @@ for epoch in range(opt.epoch, opt.n_epochs):
     lr_scheduler_D_B.step()
 
     # Save models checkpoints
-    torch.save(netG_A2B.state_dict(), 'output/'+opt.name + '/netG_A2B.pth')
-    torch.save(netG_B2A.state_dict(), 'output/'+opt.name + '/netG_B2A.pth')
-    torch.save(netD_A.state_dict(), 'output/'+opt.name + '/netD_A.pth')
-    torch.save(netD_B.state_dict(), 'output/'+opt.name + '/netD_B.pth')
+    torch.save(netG_A2B.state_dict(), 'output/'+opt.name + '_netG_A2B.pth')
+    torch.save(netG_B2A.state_dict(), 'output/'+opt.name + '_netG_B2A.pth')
+    torch.save(netD_A.state_dict(), 'output/'+opt.name + '_netD_A.pth')
+    torch.save(netD_B.state_dict(), 'output/'+opt.name + '_netD_B.pth')
 ###################################
 if opt.use_wandb:
     wandb.save('output/netG_A2B.pth')
