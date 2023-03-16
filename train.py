@@ -84,12 +84,10 @@ fake_A_buffer = ReplayBuffer()
 fake_B_buffer = ReplayBuffer()
 
 # Dataset loader
-transforms_ = [transforms.Resize(int(opt.size*1.12), interpolation=InterpolationMode.BICUBIC),
-               transforms.RandomCrop(opt.size),
-               transforms.RandomHorizontalFlip(),
-               # transforms.RandomAffine(degrees=0, shear=(-30,30)),
-               transforms.Pad(50, padding_mode='edge'),
+transforms_ = [transforms.RandomHorizontalFlip(),
+               transforms.Pad(30, padding_mode='edge'),
                transforms.RandomRotation((-10, 10), ),
+               transforms.RandomCrop(opt.size),
                transforms.ToTensor(),
                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
 dataloader = DataLoader(ImageDataset(opt, transforms_=transforms_, unaligned=True),
