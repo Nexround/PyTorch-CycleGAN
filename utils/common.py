@@ -5,15 +5,18 @@ from torch.autograd import Variable
 import torch
 import numpy as np
 
+
 def tensor2image(tensor):
     image = 127.5*(tensor[0].cpu().float().numpy() + 1.0)
     if image.shape[0] == 1:
-        image = np.tile(image, (3,1,1))
+        image = np.tile(image, (3, 1, 1))
     return image.astype(np.uint8)
+
 
 class ReplayBuffer():
     def __init__(self, max_size=50):
-        assert (max_size > 0), 'Empty buffer or trying to create a black hole. Be careful.'
+        assert (
+            max_size > 0), 'Empty buffer or trying to create a black hole. Be careful.'
         self.max_size = max_size
         self.data = []
 
@@ -25,7 +28,7 @@ class ReplayBuffer():
                 self.data.append(element)
                 to_return.append(element)
             else:
-                if random.uniform(0,1) > 0.5:
+                if random.uniform(0, 1) > 0.5:
                     i = random.randint(0, self.max_size-1)
                     to_return.append(self.data[i].clone())
                     self.data[i] = element
@@ -33,15 +36,18 @@ class ReplayBuffer():
                     to_return.append(element)
         return Variable(torch.cat(to_return))
 
+
 class LambdaLR():
     def __init__(self, n_epochs, offset, decay_start_epoch):
-        assert ((n_epochs - decay_start_epoch) > 0), "Decay must start before the training session ends!"
+        assert ((n_epochs - decay_start_epoch) >
+                0), "Decay must start before the training session ends!"
         self.n_epochs = n_epochs
         self.offset = offset
         self.decay_start_epoch = decay_start_epoch
 
     def step(self, epoch):
         return 1.0 - max(0, epoch + self.offset - self.decay_start_epoch)/(self.n_epochs - self.decay_start_epoch)
+
 
 def weights_init_normal(m):
     classname = m.__class__.__name__
@@ -50,6 +56,7 @@ def weights_init_normal(m):
     elif classname.find('BatchNorm2d') != -1:
         torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
         torch.nn.init.constant(m.bias.data, 0.0)
+
 
 def tensor2im(input_image, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.
@@ -63,13 +70,17 @@ def tensor2im(input_image, imtype=np.uint8):
             image_tensor = input_image.data
         else:
             return input_image
-        image_numpy = image_tensor[0].cpu().float().numpy()  # convert it into a numpy array
+        # convert it into a numpy array
+        image_numpy = image_tensor[0].cpu().float().numpy()
         if image_numpy.shape[0] == 1:  # grayscale to RGB
             image_numpy = np.tile(image_numpy, (3, 1, 1))
-        image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0  # post-processing: tranpose and scaling
+        image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / \
+            2.0 * 255.0  # post-processing: tranpose and scaling
     else:  # if it is a numpy array, do nothing
         image_numpy = input_image
     return image_numpy.astype(imtype)
+
+
 def initialize_weights(net):
     for m in net.modules():
         try:
@@ -88,4 +99,3 @@ def initialize_weights(net):
         except Exception as e:
             # print(f'SKip layer {m}, {e}')
             pass
-
