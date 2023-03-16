@@ -87,7 +87,7 @@ fake_B_buffer = ReplayBuffer()
 transforms_ = [transforms.RandomHorizontalFlip(),
                transforms.Pad(30, padding_mode='edge'),
                transforms.RandomRotation((-10, 10), ),
-               transforms.RandomCrop(opt.size),
+               transforms.CenterCrop(opt.size),
                transforms.ToTensor(),
                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
 dataloader = DataLoader(ImageDataset(opt, transforms_=transforms_, unaligned=True),
