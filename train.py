@@ -42,11 +42,12 @@ if opt.cuda:
     netG_B2A.cuda()
     netD_A.cuda()
     netD_B.cuda()
+if opt.mutil_gpu:
+    netG_A2B = torch.nn.DataParallel(netG_A2B)
+    netG_B2A = torch.nn.DataParallel(netG_B2A)
+    netD_A = torch.nn.DataParallel(netD_A)
+    netD_B = torch.nn.DataParallel(netD_B)
 
-# netG_A2B.apply(weights_init_normal)
-# netG_B2A.apply(weights_init_normal)
-# netD_A.apply(weights_init_normal)
-# netD_B.apply(weights_init_normal)
 
 # Lossess
 criterion_GAN = torch.nn.MSELoss()
@@ -132,7 +133,6 @@ for epoch in range(opt.epoch, opt.n_epochs):
         loss_cycle_BAB = criterion_cycle(recovered_B, real_B)*10.0
 
         # Total loss
-        # loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB
         loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB
         loss_G.backward()
         

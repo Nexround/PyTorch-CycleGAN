@@ -45,7 +45,7 @@ class Generator(nn.Module):
             nn.Tanh(),
         )
 
-        self.initialize_weights(self)
+        self.initialize_weights(self) # 网络初始化
 
     def initialize_weights(self,net):
         for m in net.modules():

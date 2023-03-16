@@ -110,3 +110,4 @@ output/B/
 *.pth
 .vscode/launch.json
 .vscode/settings.json
+train.py
