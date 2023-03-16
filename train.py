@@ -15,11 +15,13 @@ from models import Discriminator
 from utils.common import *
 from datasets import ImageDataset
 
+import wandb
+
+
 opt = BaseOptions().parse()
 
 if opt.use_wandb:
     #wandb setup
-    import wandb
     wandb.init(project="cleanCycleGAN", name=opt.name, config=opt)
     columns = ["Epoch", "Real A", "Real B", "Fake A", "Fake B", "Recovered A", "Recovered B", "Same A", "Same B"]
     result_table = wandb.Table(columns)
@@ -77,8 +79,9 @@ fake_B_buffer = ReplayBuffer()
 transforms_ = [ transforms.Resize(int(opt.size*1.12), interpolation=InterpolationMode.BICUBIC), 
                 transforms.RandomCrop(opt.size), 
                 transforms.RandomHorizontalFlip(),
-                transforms.RandomAffine(degrees=0, shear=(-30,30)),
-                transforms.RandomRotation((-60,60)),
+                # transforms.RandomAffine(degrees=0, shear=(-30,30)),
+                transforms.Pad(50, padding_mode='edge'),
+                transforms.RandomRotation((-10,10), ),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)) ]
 dataloader = DataLoader(ImageDataset(opt, transforms_=transforms_, unaligned=True), 
