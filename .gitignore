@@ -111,3 +111,5 @@ output/B/
 .vscode/launch.json
 .vscode/settings.json
 train.py
+
+*.zip
