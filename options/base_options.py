@@ -23,8 +23,8 @@ class BaseOptions():
                             help='number of epochs of training')
         parser.add_argument('--batch_size', type=int,
                             default=1, help='size of the batches')
-        parser.add_argument('--dataroot',  required=True, type=str,
-                            default='datasets/horse2zebra/', help='root directory of the dataset')
+        parser.add_argument('--dataroot', type=str, 
+                            default='datasets/horse2zebra/', help='root directory of the dataset') #  required=True
         parser.add_argument('-A', type=str, help='A directory')
         parser.add_argument('-B', type=str, help='B directory')
         parser.add_argument('--lr', type=float, default=0.0002,
