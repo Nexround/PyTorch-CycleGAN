@@ -3,13 +3,11 @@
 import itertools
 from tqdm import tqdm
 
-from torchvision.transforms import InterpolationMode
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 import torch
 from options.base_options import BaseOptions
 
-# from models import Generator
 from model.anime_gan import Generator
 from models import Discriminator
 from utils.common import *
@@ -19,12 +17,11 @@ import wandb
 
 if __name__ == '__main__':
 
-
     opt = BaseOptions().parse()
 
     if opt.use_wandb:
         # wandb setup
-        wandb.init(project="cleanCycleGAN", name=opt.name, config=opt)
+        wandb.init(project=opt.wandb_project_name, name=opt.name, config=opt)
         columns = ["Epoch", "Real A", "Real B", "Fake A", "Fake B",
                 "Recovered A", "Recovered B", "Same A", "Same B"]
         result_table = wandb.Table(columns)
@@ -100,7 +97,7 @@ if __name__ == '__main__':
 
     ###### Training ######
     for epoch in range(opt.epoch, opt.n_epochs):
-        for batch in tqdm(dataloader):
+        for batch in tqdm(dataloader, desc='Epoch %d/%d' % (epoch, opt.n_epochs)):
             if batch['A'].shape[0] != opt.batch_size:
                 """必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size"""
                 continue
