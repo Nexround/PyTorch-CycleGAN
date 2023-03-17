@@ -192,7 +192,7 @@ if __name__ == '__main__':
                 ims_dict[label] = wandb_image
             img_list = ims_dict.values()
             result_table.add_data(epoch, *img_list)
-            wandb.log({"fake_B": wandb.Image(fake_B)})
+            wandb.log({"fake_A": wandb.Image(fake_A), "fake_B": wandb.Image(fake_B)})
             wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
                     'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B), 'loss_GAN_A2B': loss_GAN_A2B, 'loss_GAN_B2A': loss_GAN_B2A, },
                     )
