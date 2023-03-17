@@ -3,10 +3,10 @@ import torch.nn.functional as F
 from torch.nn.utils import spectral_norm
 class Discriminator(nn.Module):
     # initializers
-    def __init__(self, nf=32):
+    def __init__(self, opt):
         super(Discriminator, self).__init__()
 
-        self.nf = nf
+        nf = 32
         self.convs = nn.Sequential(
             nn.Conv2d(3, nf, 3, 1, 1),
             nn.LeakyReLU(0.2, True),
