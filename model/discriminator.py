@@ -118,6 +118,7 @@ class Discriminator(nn.Module):
     def __init__(self, opt):
         super(Discriminator, self).__init__()
         channels = 32
+        self.bias = False
         # A bunch of convolutions one after another
         model = [   nn.Conv2d(3, channels, kernel_size=3, stride=1, padding=1),
                     nn.LeakyReLU(0.2, inplace=True) ]
