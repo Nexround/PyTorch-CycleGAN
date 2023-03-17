@@ -10,6 +10,7 @@ from options.base_options import BaseOptions
 
 from model.anime_gan import Generator
 from models import Discriminator
+from model.vgg import VGG19
 from utils.common import *
 from datasets import ImageDataset
 
@@ -18,7 +19,9 @@ import wandb
 if __name__ == '__main__':
 
     opt = BaseOptions().parse()
-
+    VGG = VGG19(init_weights=opt.vgg_model, feature_mode=True)
+    VGG.to('cuda')
+    VGG.eval()
     if opt.use_wandb:
         # wandb setup
         wandb.init(project=opt.wandb_project_name, name=opt.name, config=opt)
