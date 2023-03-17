@@ -35,11 +35,11 @@ if __name__ == '__main__':
     # Networks
     netG_A2B = Generator()
     netG_B2A = Generator()
-    netD_A = Discriminator(opt.input_nc)
-    netD_B = Discriminator(opt.output_nc)
+    netD_A = Discriminator(opt)
+    netD_B = Discriminator(opt)
 
     torch.backends.cudnn.benchmark = True
-    
+
     if opt.cuda:
         netG_A2B.cuda()
         netG_B2A.cuda()

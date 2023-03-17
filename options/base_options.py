@@ -43,19 +43,15 @@ class BaseOptions():
                             action='store_true', help='use GPU computation')
         parser.add_argument('--n_cpu', type=int, default=self.n_cpu,
                             help='number of cpu threads to use during batch generation')
-        parser.add_argument('--use_wandb', default=False,
-                            action='store_true', help='use wandb for logging')
-        parser.add_argument('--mutil_gpu', default=False,
-                            action='store_true', help='use mutil gpu for training')
+        parser.add_argument('--use_wandb', default=False, action='store_true', help='use wandb for logging')
+        parser.add_argument('--mutil_gpu', default=False, action='store_true', help='use mutil gpu for training')
         parser.add_argument('--name', type=str, help='name of run in wandb')
-        parser.add_argument('--generator_A2B', type=str,
-                            default='output/netG_A2B.pth', help='A2B generator checkpoint file')
-        parser.add_argument('--generator_B2A', type=str,
-                            default='output/netG_B2A.pth', help='B2A generator checkpoint file')
-        parser.add_argument('--wandb_project_name', type=str,
-                            default='MyOwnCycleGAN', help='specify wandb project name')
-        parser.add_argument('--vgg_model', type=str,
-                            default='pre_trained_VGG19_model_path/vgg19.pth', help='pre-trained VGG19 model path')
+        parser.add_argument('--generator_A2B', type=str, default='output/netG_A2B.pth', help='A2B generator checkpoint file')
+        parser.add_argument('--generator_B2A', type=str, default='output/netG_B2A.pth', help='B2A generator checkpoint file')
+        parser.add_argument('--wandb_project_name', type=str, default='MyOwnCycleGAN', help='specify wandb project name')
+        parser.add_argument('--vgg_model', type=str, default='pre_trained_VGG19_model_path/vgg19.pth', help='pre-trained VGG19 model path')
+        parser.add_argument('--use_sn', action='store_true')
+        parser.add_argument('--d-layers', type=int, default=3, help='Discriminator conv layers')
 
         self.initialized = True
         return parser
