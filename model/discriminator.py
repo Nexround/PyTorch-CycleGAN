@@ -1,7 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils import spectral_norm
-class Discriminator(nn.Module):
+
+class _Discriminator(nn.Module):
     # initializers
     def __init__(self, opt):
         super(Discriminator, self).__init__()
@@ -113,28 +114,30 @@ class _Discriminator(nn.Module):
 
     def forward(self, img):
         return self.discriminate(img)
-class _Discriminator(nn.Module):
-    def __init__(self, input_nc):
+class Discriminator(nn.Module):
+    def __init__(self, opt):
         super(Discriminator, self).__init__()
-
+        channels = 32
         # A bunch of convolutions one after another
-        model = [   nn.Conv2d(input_nc, 64, 4, stride=2, padding=1),
+        model = [   nn.Conv2d(3, channels, kernel_size=3, stride=1, padding=1),
                     nn.LeakyReLU(0.2, inplace=True) ]
 
-        model += [  nn.Conv2d(64, 128, 4, stride=2, padding=1),
-                    nn.InstanceNorm2d(128), 
-                    nn.LeakyReLU(0.2, inplace=True) ]
+        for _ in range(3):
+            model += [
+                nn.Conv2d(channels, channels * 2, kernel_size=3, stride=2, padding=1, bias=self.bias),
+                nn.LeakyReLU(0.2, True),
+                nn.Conv2d(channels * 2, channels * 4, kernel_size=3, stride=1, padding=1, bias=self.bias),
+                nn.InstanceNorm2d(channels * 4),
+                nn.LeakyReLU(0.2, True),
+            ]
+            channels *= 4
 
-        model += [  nn.Conv2d(128, 256, 4, stride=2, padding=1),
-                    nn.InstanceNorm2d(256), 
-                    nn.LeakyReLU(0.2, inplace=True) ]
-
-        model += [  nn.Conv2d(256, 512, 4, padding=1),
-                    nn.InstanceNorm2d(512), 
-                    nn.LeakyReLU(0.2, inplace=True) ]
-
-        # FCN classification layer
-        model += [nn.Conv2d(512, 1, 4, padding=1)]
+        model += [
+            nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1, bias=self.bias),
+            nn.InstanceNorm2d(channels),
+            nn.LeakyReLU(0.2, True),
+            nn.Conv2d(channels, 1, kernel_size=3, stride=1, padding=1, bias=self.bias),
+        ]
 
         self.model = nn.Sequential(*model)
 
