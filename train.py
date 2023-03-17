@@ -20,15 +20,13 @@ if __name__ == '__main__':
 
     opt = BaseOptions().parse()
     VGG = VGG19(init_weights=opt.vgg_model, feature_mode=True)
-    VGG.to('cuda')
-    VGG.eval()
+
     if opt.use_wandb:
         # wandb setup
         wandb.init(project=opt.wandb_project_name, name=opt.name, config=opt)
         columns = ["Epoch", "Real A", "Real B", "Fake A", "Fake B",
-                "Recovered A", "Recovered B", "Same A", "Same B"]
+                   "Recovered A", "Recovered B", "Same A", "Same B"]
         result_table = wandb.Table(columns)
-
 
     if torch.cuda.is_available() and not opt.cuda:
         print("WARNING: You have a CUDA device, so you should probably run with --cuda")
@@ -45,21 +43,25 @@ if __name__ == '__main__':
         netG_B2A.cuda()
         netD_A.cuda()
         netD_B.cuda()
+        VGG.cuda()
     if opt.mutil_gpu:
         netG_A2B = torch.nn.DataParallel(netG_A2B)
         netG_B2A = torch.nn.DataParallel(netG_B2A)
         netD_A = torch.nn.DataParallel(netD_A)
         netD_B = torch.nn.DataParallel(netD_B)
+        VGG = torch.nn.DataParallel(VGG)
 
+    VGG.eval()
 
     # Lossess
     criterion_GAN = torch.nn.MSELoss()
     criterion_cycle = torch.nn.L1Loss()
     criterion_identity = torch.nn.L1Loss()
+    criterion_content = torch.nn.L1Loss()
 
     # Optimizers & LR schedulers
     optimizer_G = torch.optim.Adam(itertools.chain(netG_A2B.parameters(), netG_B2A.parameters()),
-                                lr=opt.lr, betas=(0.5, 0.999))
+                                   lr=opt.lr, betas=(0.5, 0.999))
     optimizer_D_A = torch.optim.Adam(
         netD_A.parameters(), lr=opt.lr, betas=(0.5, 0.999))
     optimizer_D_B = torch.optim.Adam(
@@ -87,14 +89,13 @@ if __name__ == '__main__':
 
     # Dataset loader
     transforms_ = [transforms.RandomHorizontalFlip(),
-                transforms.Pad(30, padding_mode='edge'),
-                transforms.RandomRotation((-10, 10), ),
-                transforms.CenterCrop(opt.size),
-                transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+                   transforms.Pad(30, padding_mode='edge'),
+                   transforms.RandomRotation((-10, 10), ),
+                   transforms.CenterCrop(opt.size),
+                   transforms.ToTensor(),
+                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     dataloader = DataLoader(ImageDataset(opt, transforms_=transforms_, unaligned=True),
                             batch_size=opt.batch_size, shuffle=True, num_workers=opt.n_cpu)
-
 
     ###################################
 
@@ -139,9 +140,14 @@ if __name__ == '__main__':
             recovered_B = netG_A2B(fake_A)
             loss_cycle_BAB = criterion_cycle(recovered_B, real_B)*10.0
 
+            # Content loss
+            x_feature = VGG((real_A + 1) / 2)
+            G_feature = VGG((fake_B + 1) / 2)
+            Con_loss = 10 * criterion_content(G_feature, x_feature.detach())
+
             # Total loss
             loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + \
-                loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB
+                loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB + Con_loss
             loss_G.backward()
 
             optimizer_G.step()
@@ -195,10 +201,11 @@ if __name__ == '__main__':
                 ims_dict[label] = wandb_image
             img_list = ims_dict.values()
             result_table.add_data(epoch, *img_list)
-            wandb.log({"fake_A": wandb.Image(fake_A), "fake_B": wandb.Image(fake_B)})
-            wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
-                    'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B), 'loss_GAN_A2B': loss_GAN_A2B, 'loss_GAN_B2A': loss_GAN_B2A, },
-                    )
+            wandb.log({"fake_A": wandb.Image(fake_A),
+                      "fake_B": wandb.Image(fake_B)})
+            wandb.log({'Content_loss': Con_loss, 'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
+                       'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B), 'loss_GAN_A2B': loss_GAN_A2B, 'loss_GAN_B2A': loss_GAN_B2A, },
+                      )
 
         # Update learning rates
         lr_scheduler_G.step()

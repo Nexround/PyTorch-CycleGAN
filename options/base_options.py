@@ -54,6 +54,8 @@ class BaseOptions():
                             default='output/netG_B2A.pth', help='B2A generator checkpoint file')
         parser.add_argument('--wandb_project_name', type=str,
                             default='MyOwnCycleGAN', help='specify wandb project name')
+        parser.add_argument('--vgg_model', type=str,
+                            default='pre_trained_VGG19_model_path/vgg19.pth', help='pre-trained VGG19 model path')
 
         self.initialized = True
         return parser
