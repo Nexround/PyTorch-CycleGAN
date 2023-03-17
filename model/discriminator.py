@@ -50,7 +50,8 @@ class Discriminator(nn.Module):
     # forward method
     def forward(self, input):
         # input = torch.cat((input1, input2), 1)
-        output = self.convs(input)
+        x = self.convs(input)
+        output = F.avg_pool2d(x, x.size()[2:]).view(x.size()[0], -1)
 
         return output
     
