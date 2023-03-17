@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 import torch
 
-from models import Generator
+from model.anime_gan import Generator
 from datasets import ImageDataset
 
 opt = BaseOptions().parse()
@@ -20,12 +20,15 @@ if torch.cuda.is_available() and not opt.cuda:
 
 ###### Definition of variables ######
 # Networks
-netG_A2B = Generator(opt.input_nc, opt.output_nc)
-netG_B2A = Generator(opt.output_nc, opt.input_nc)
+netG_A2B = Generator()
+netG_B2A = Generator()
 
 if opt.cuda:
     netG_A2B.cuda()
     netG_B2A.cuda()
+if opt.mutil_gpu:
+    netG_A2B = torch.nn.DataParallel(netG_A2B)
+    netG_B2A = torch.nn.DataParallel(netG_B2A)
 
 # Load state dicts
 netG_A2B.load_state_dict(torch.load(opt.generator_A2B))
@@ -37,14 +40,14 @@ netG_B2A.eval()
 
 # Inputs & targets memory allocation
 Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
-input_A = Tensor(opt.batchSize, opt.input_nc, opt.size, opt.size)
-input_B = Tensor(opt.batchSize, opt.output_nc, opt.size, opt.size)
+input_A = Tensor(opt.batch_size, opt.input_nc, opt.size, opt.size)
+input_B = Tensor(opt.batch_size, opt.output_nc, opt.size, opt.size)
 
 # Dataset loader
 transforms_ = [ transforms.ToTensor(),
                 transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)) ]
-dataloader = DataLoader(ImageDataset(opt.testA, opt.testB, transforms_=transforms_, mode='test'), 
-                        batch_size=opt.batchSize, shuffle=False, num_workers=opt.n_cpu)
+dataloader = DataLoader(ImageDataset(opt, transforms_=transforms_, mode='test'), 
+                        batch_size=opt.batch_size, shuffle=False, num_workers=opt.n_cpu)
 ###################################
 
 ###### Testing######

@@ -10,7 +10,7 @@ import torch
 from options.base_options import BaseOptions
 
 # from models import Generator
-from modeling.anime_gan import Generator
+from model.anime_gan import Generator
 from models import Discriminator
 from utils.common import *
 from datasets import ImageDataset
