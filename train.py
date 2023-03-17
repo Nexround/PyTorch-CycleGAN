@@ -38,6 +38,8 @@ if __name__ == '__main__':
     netD_A = Discriminator(opt.input_nc)
     netD_B = Discriminator(opt.output_nc)
 
+    torch.backends.cudnn.benchmark = True
+    
     if opt.cuda:
         netG_A2B.cuda()
         netG_B2A.cuda()
