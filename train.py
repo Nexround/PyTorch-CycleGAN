@@ -48,10 +48,9 @@ if __name__ == '__main__':
 
     for net in nets:
         net.to(torch.float16)
-    if opt.cuda:
-        net.cuda()
-    if opt.mutil_gpu:
-        for net in nets:
+        if opt.cuda:
+            net.cuda()
+        if opt.mutil_gpu:
             net = torch.nn.DataParallel(net)
 
     # Lossess
