@@ -52,6 +52,7 @@ class BaseOptions():
         parser.add_argument('--vgg_model', type=str, default='pre_trained_VGG19_model_path/vgg19.pth', help='pre-trained VGG19 model path')
         parser.add_argument('--vgg', action='store_true', help='use VGG19 loss')
         parser.add_argument('--use_sn', action='store_true')
+        parser.add_argument('--use_amp', action='store_true', help='use amp')
         parser.add_argument('--float16', action='store_true', help='use float16')
         parser.add_argument('--d-layers', type=int, default=3, help='Discriminator conv layers')
 
