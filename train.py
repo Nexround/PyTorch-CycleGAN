@@ -199,7 +199,7 @@ if __name__ == '__main__':
                 # Total loss
                 loss_D_B = (loss_D_real + loss_D_fake)*0.5
 
-            if opt.amp:
+            if opt.use_amp:
                 scaler.scale(loss_G).backward()
                 scaler.step(optimizer_G)
 
