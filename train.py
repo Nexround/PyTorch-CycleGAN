@@ -14,8 +14,17 @@ from model.vgg import VGG19
 from utils.common import *
 from datasets import ImageDataset
 from torch.cuda.amp import GradScaler, autocast
+from contextlib import contextmanager
 
 import wandb
+
+@contextmanager
+def mixed_precision_context(amp):
+    if amp:
+        with autocast():
+            yield
+    else:
+        yield
 
 if __name__ == '__main__':
 
@@ -122,15 +131,18 @@ if __name__ == '__main__':
 
             ###### Generators A2B and B2A ######
             optimizer_G.zero_grad()
-            with autocast():
+            optimizer_D_A.zero_grad()
+            optimizer_D_B.zero_grad()
+
+            with mixed_precision_context(opt.use_amp):
 
                 # Identity loss
                 # G_A2B(B) should equal B if real B is fed
                 same_B = netG_A2B(real_B)
-                loss_identity_B = criterion_identity(same_B, real_B)*5.0
+                loss_identity_B = criterion_identity(same_B, real_B) # 5.0
                 # G_B2A(A) should equal A if real A is fed
                 same_A = netG_B2A(real_A)
-                loss_identity_A = criterion_identity(same_A, real_A)*5.0
+                loss_identity_A = criterion_identity(same_A, real_A) # 5.0
 
                 # GAN loss
                 fake_B = netG_A2B(real_A)
@@ -143,10 +155,10 @@ if __name__ == '__main__':
 
                 # Cycle loss
                 recovered_A = netG_B2A(fake_B)
-                loss_cycle_ABA = criterion_cycle(recovered_A, real_A)*10.0
+                loss_cycle_ABA = criterion_cycle(recovered_A, real_A) # 10.0
 
                 recovered_B = netG_A2B(fake_A)
-                loss_cycle_BAB = criterion_cycle(recovered_B, real_B)*10.0
+                loss_cycle_BAB = criterion_cycle(recovered_B, real_B) # 10.0
 
                 # Content loss
                 if opt.vgg:
@@ -159,18 +171,9 @@ if __name__ == '__main__':
                 # Total loss
                 loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + \
                     loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB
-            scaler.scale(loss_G).backward()
-            scaler.step(optimizer_G)
-            scaler.update()
-
-            # optimizer_G.step()
-            ###################################
-
-            ###### Discriminator A ######
-            optimizer_D_A.zero_grad()
-
-            # Real loss
-            with autocast():
+                ###### Discriminator A ######
+                
+                # Real loss
                 pred_real = netD_A(real_A)
                 loss_D_real = criterion_GAN(pred_real, target_real)
 
@@ -182,20 +185,9 @@ if __name__ == '__main__':
                 # Total loss
                 loss_D_A = (loss_D_real + loss_D_fake)*0.5
 
-            scaler.scale(loss_D_A).backward()
-            scaler.step(optimizer_D_A)
-            scaler.update()
+                ###### Discriminator B ######
 
-            # loss_D_A.backward()
-
-            # optimizer_D_A.step()
-            ###################################
-
-            ###### Discriminator B ######
-            optimizer_D_B.zero_grad()
-
-            # Real loss
-            with autocast():
+                # Real loss
                 pred_real = netD_B(real_B)
                 loss_D_real = criterion_GAN(pred_real, target_real)
 
@@ -206,14 +198,26 @@ if __name__ == '__main__':
 
                 # Total loss
                 loss_D_B = (loss_D_real + loss_D_fake)*0.5
-            scaler.scale(loss_D_B).backward()
-            scaler.step(optimizer_D_B)
-            scaler.update()
 
-            # loss_D_B.backward()
+            if opt.amp:
+                scaler.scale(loss_G).backward()
+                scaler.step(optimizer_G)
 
-            # optimizer_D_B.step()
-            ###################################
+                scaler.scale(loss_D_A).backward()
+                scaler.step(optimizer_D_A)
+
+                scaler.scale(loss_D_B).backward()
+                scaler.step(optimizer_D_B)
+
+                scaler.update()
+            else:
+                loss_G.backward()
+                optimizer_G.step()
+                loss_D_A.backward()
+                optimizer_D_A.step()
+                loss_D_B.backward()
+                optimizer_D_B.step()
+
 
         if opt.use_wandb:
             img_dict = {"Real A": real_A, "Real B": real_B, "Fake A": fake_A, "Fake B": fake_B,
