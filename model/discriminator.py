@@ -123,7 +123,7 @@ class Discriminator(nn.Module):
         model = [   nn.Conv2d(3, channels, kernel_size=3, stride=1, padding=1),
                     nn.LeakyReLU(0.2, inplace=True) ]
 
-        for _ in range(3):
+        for _ in range(2):
             model += [
                 nn.Conv2d(channels, channels * 2, kernel_size=3, stride=2, padding=1, bias=self.bias),
                 nn.LeakyReLU(0.2, True),
