@@ -19,7 +19,6 @@ import wandb
 if __name__ == '__main__':
 
     opt = BaseOptions().parse()
-    VGG = VGG19(init_weights=opt.vgg_model, feature_mode=True)
 
     if opt.use_wandb:
         # wandb setup
@@ -38,22 +37,22 @@ if __name__ == '__main__':
     netD_A = Discriminator(opt)
     netD_B = Discriminator(opt)
 
+    nets = [netG_A2B, netG_B2A, netD_A, netD_B]
+
     torch.backends.cudnn.benchmark = True
 
-    if opt.cuda:
-        netG_A2B.cuda()
-        netG_B2A.cuda()
-        netD_A.cuda()
-        netD_B.cuda()
-        VGG.cuda()
-    if opt.mutil_gpu:
-        netG_A2B = torch.nn.DataParallel(netG_A2B)
-        netG_B2A = torch.nn.DataParallel(netG_B2A)
-        netD_A = torch.nn.DataParallel(netD_A)
-        netD_B = torch.nn.DataParallel(netD_B)
-        VGG = torch.nn.DataParallel(VGG)
+    if opt.vgg:
+        VGG = VGG19(init_weights=opt.vgg_model, feature_mode=True)
+        VGG.eval()
+        nets.append(VGG)
 
-    VGG.eval()
+    for net in nets:
+        net.to(torch.float16)
+    if opt.cuda:
+        net.cuda()
+    if opt.mutil_gpu:
+        for net in nets:
+            net = torch.nn.DataParallel(net)
 
     # Lossess
     criterion_GAN = torch.nn.MSELoss()
@@ -77,7 +76,7 @@ if __name__ == '__main__':
         optimizer_D_B, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
 
     # Inputs & targets memory allocation
-    Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
+    Tensor = torch.cuda.HalfTensor if opt.cuda else torch.Tensor
     input_A = Tensor(opt.batch_size, opt.input_nc, opt.size, opt.size)
     input_B = Tensor(opt.batch_size, opt.output_nc, opt.size, opt.size)
     # target_real = Variable(Tensor(opt.batch_size).fill_(1.0), requires_grad=False)
@@ -95,10 +94,16 @@ if __name__ == '__main__':
                    transforms.RandomRotation((-10, 10), ),
                    transforms.CenterCrop(opt.size),
                    transforms.ToTensor(),
-                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                   lambda x: x.to(torch.float16)]
     dataloader = DataLoader(ImageDataset(opt, transforms_=transforms_, unaligned=True),
                             batch_size=opt.batch_size, shuffle=True, num_workers=opt.n_cpu)
-
+    '''
+    sample_param = next(netG_A2B.parameters())
+    # 获取参数的数据类型
+    param_dtype = sample_param.dtype
+    print(f"模型参数的数据类型：{param_dtype}")
+    '''
     ###################################
 
     ###### Training ######
@@ -111,9 +116,6 @@ if __name__ == '__main__':
 
             real_A = batch['A'].to('cuda')
             real_B = batch['B'].to('cuda')
-
-            # real_A = Variable(input_A.copy_(batch['A']))
-            # real_B = Variable(input_B.copy_(batch['B']))
 
             ###### Generators A2B and B2A ######
             optimizer_G.zero_grad()
@@ -143,13 +145,16 @@ if __name__ == '__main__':
             loss_cycle_BAB = criterion_cycle(recovered_B, real_B)*10.0
 
             # Content loss
-            x_feature = VGG((real_A + 1) / 2)
-            G_feature = VGG((fake_B + 1) / 2)
-            Con_loss = 10 * criterion_content(G_feature, x_feature.detach())
+            if opt.vgg:
+                x_feature = VGG((real_A + 1) / 2)
+                G_feature = VGG((fake_B + 1) / 2)
+                Con_loss = 10 * criterion_content(G_feature, x_feature.detach())
+                loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + \
+                loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB + Con_loss
 
             # Total loss
             loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + \
-                loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB + Con_loss
+                loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB
             loss_G.backward()
 
             optimizer_G.step()
