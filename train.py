@@ -12,6 +12,7 @@ from model.anime_gan import Generator
 from model.discriminator import Discriminator
 from model.vgg import VGG19
 from utils.common import *
+from utils.loss import face_result
 from datasets import ImageDataset
 from torch.cuda.amp import GradScaler, autocast
 from contextlib import contextmanager
@@ -67,6 +68,7 @@ if __name__ == '__main__':
 
     # Lossess
     criterion_GAN = torch.nn.MSELoss()
+    criterion_face = torch.nn.MSELoss()
     criterion_cycle = torch.nn.L1Loss()
     criterion_identity = torch.nn.L1Loss()
     criterion_content = torch.nn.L1Loss()
@@ -117,7 +119,6 @@ if __name__ == '__main__':
     '''
     ###################################
     scaler = GradScaler()
-
     ###### Training ######
     for epoch in range(opt.epoch, opt.n_epochs):
         for batch in tqdm(dataloader, desc='Epoch %d/%d' % (epoch, opt.n_epochs)):
@@ -125,7 +126,9 @@ if __name__ == '__main__':
                 """必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size"""
                 continue
             # Set model input
-
+            loss_G = []
+            loss_D = []
+            
             real_A = batch['A'].to('cuda')
             real_B = batch['B'].to('cuda')
 
@@ -140,37 +143,49 @@ if __name__ == '__main__':
                 # G_A2B(B) should equal B if real B is fed
                 same_B = netG_A2B(real_B)
                 loss_identity_B = criterion_identity(same_B, real_B) # 5.0
+                loss_G.append(loss_identity_B)
+
                 # G_B2A(A) should equal A if real A is fed
                 same_A = netG_B2A(real_A)
                 loss_identity_A = criterion_identity(same_A, real_A) # 5.0
+                loss_G.append(loss_identity_A)
 
                 # GAN loss
                 fake_B = netG_A2B(real_A)
                 pred_fake = netD_B(fake_B)
                 loss_GAN_A2B = criterion_GAN(pred_fake, target_real)
+                loss_G.append(loss_GAN_A2B)
 
                 fake_A = netG_B2A(real_B)
                 pred_fake = netD_A(fake_A)
                 loss_GAN_B2A = criterion_GAN(pred_fake, target_real)
+                loss_G.append(loss_GAN_B2A)
 
                 # Cycle loss
                 recovered_A = netG_B2A(fake_B)
                 loss_cycle_ABA = criterion_cycle(recovered_A, real_A) # 10.0
+                loss_G.append(loss_cycle_ABA)
 
                 recovered_B = netG_A2B(fake_A)
                 loss_cycle_BAB = criterion_cycle(recovered_B, real_B) # 10.0
+                loss_G.append(loss_cycle_BAB)
 
                 # Content loss
                 if opt.vgg:
                     x_feature = VGG((real_A + 1) / 2)
                     G_feature = VGG((fake_B + 1) / 2)
-                    Con_loss = 10 * criterion_content(G_feature, x_feature.detach())
-                    loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + \
-                    loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB + Con_loss
+                    loss_content = 10 * criterion_content(G_feature, x_feature.detach())
+                    loss_G.append(loss_content)
+
+                # Face loss
+                if opt.face:
+                    A_face = face_result(real_A)
+                    B_face = face_result(fake_B)
+                    loss_face = - criterion_face(B_face[1], A_face[1])
+                    loss_G.append(loss_face)
 
                 # Total loss
-                loss_G = loss_identity_A + loss_identity_B + loss_GAN_A2B + \
-                    loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB
+                loss_G = sum(loss_G)
                 ###### Discriminator A ######
                 
                 # Real loss
@@ -198,6 +213,7 @@ if __name__ == '__main__':
 
                 # Total loss
                 loss_D_B = (loss_D_real + loss_D_fake)*0.5
+
 
             if opt.use_amp:
                 scaler.scale(loss_G).backward()

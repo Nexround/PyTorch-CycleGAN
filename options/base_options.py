@@ -29,6 +29,7 @@ class BaseOptions():
         parser.add_argument('-B', type=str, help='B directory')
 
         parser.add_argument('--TTUR', action='store_true', help='use TTUR training scheme')
+        parser.add_argument('--face', action='store_true', help='use face loss')
         parser.add_argument('--lrD', type=float, default=0.0004, help='initial learning rate of Discriminator')
         parser.add_argument('--lrG', type=float, default=0.0001, help='initial learning rate of Generator')
         parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate')
