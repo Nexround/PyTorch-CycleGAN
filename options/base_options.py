@@ -27,8 +27,11 @@ class BaseOptions():
                             default='datasets/horse2zebra/', help='root directory of the dataset') #  required=True
         parser.add_argument('-A', type=str, help='A directory')
         parser.add_argument('-B', type=str, help='B directory')
-        parser.add_argument('--lr', type=float, default=0.0002,
-                            help='initial learning rate')
+
+        parser.add_argument('--TTUR', action='store_true', help='use TTUR training scheme')
+        parser.add_argument('--lrD', type=float, default=0.0004, help='initial learning rate of Discriminator')
+        parser.add_argument('--lrG', type=float, default=0.0001, help='initial learning rate of Generator')
+        parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate')
         parser.add_argument('--decay_epoch', type=int, default=100,
                             help='epoch to start linearly decaying the learning rate to 0')
         parser.add_argument('--size', type=int, default=256,
