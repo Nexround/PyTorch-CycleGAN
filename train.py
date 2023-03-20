@@ -110,7 +110,7 @@ if __name__ == '__main__':
                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                    ]#lambda x: x.to(torch.float16)
     dataloader = DataLoader(ImageDataset(opt, transforms_=transforms_, unaligned=True),
-                            batch_size=opt.batch_size, shuffle=True, num_workers=opt.n_cpu)
+                            batch_size=opt.batch_size, shuffle=True, num_workers=opt.n_cpu, drop_last = True)
     '''
     sample_param = next(netG_A2B.parameters())
     # 获取参数的数据类型
@@ -122,9 +122,9 @@ if __name__ == '__main__':
     ###### Training ######
     for epoch in range(opt.epoch, opt.n_epochs):
         for batch in tqdm(dataloader, desc='Epoch %d/%d' % (epoch, opt.n_epochs)):
-            if batch['A'].shape[0] != opt.batch_size:
-                """必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size"""
-                continue
+            # if batch['A'].shape[0] != opt.batch_size:
+            #     """必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size"""
+            #     continue
             # Set model input
             loss_G = []
             loss_D = []
