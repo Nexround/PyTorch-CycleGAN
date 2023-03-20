@@ -110,7 +110,7 @@ if __name__ == '__main__':
                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                    ]#lambda x: x.to(torch.float16)
     dataloader = DataLoader(ImageDataset(opt, transforms_=transforms_, unaligned=True),
-                            batch_size=opt.batch_size, shuffle=True, num_workers=opt.n_cpu, drop_last = True)
+                            batch_size=opt.batch_size, shuffle=True, num_workers=opt.n_cpu, drop_last = True, pin_memory = True)
     '''
     sample_param = next(netG_A2B.parameters())
     # 获取参数的数据类型
