@@ -292,6 +292,6 @@ if __name__ == '__main__':
         torch.save(netD_B.state_dict(), 'output/'+opt.name + '_netD_B.pth')
     ###################################
     if opt.use_wandb:
-        wandb.save('output/netG_A2B.pth')
-        wandb.save('output/netG_B2A.pth')
+        wandb.save('output/'+opt.name + '_netG_A2B.pth')
+        wandb.save('output/'+opt.name + '_netG_B2A.pth')
         wandb.log({"Log": result_table})
