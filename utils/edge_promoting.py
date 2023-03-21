@@ -1,7 +1,6 @@
 import cv2, os
 import numpy as np
 from tqdm import tqdm
-import time 
 import argparse
 
 def edge_promoting(root, save):
