@@ -27,6 +27,7 @@ class BaseOptions():
                             default='datasets/horse2zebra/', help='root directory of the dataset') #  required=True
         parser.add_argument('-A', type=str, help='A directory')
         parser.add_argument('-B', type=str, help='B directory')
+        parser.add_argument('--edge_path', type=str, help='edge directory')
 
         parser.add_argument('--TTUR', action='store_true', help='use TTUR training scheme')
         parser.add_argument('--face', action='store_true', help='use face loss')
@@ -55,8 +56,9 @@ class BaseOptions():
         parser.add_argument('--wandb_project_name', type=str, default='MyOwnCycleGAN', help='specify wandb project name')
         parser.add_argument('--vgg_model', type=str, default='pre_trained_VGG19_model_path/vgg19.pth', help='pre-trained VGG19 model path')
         parser.add_argument('--vgg', action='store_true', help='use VGG19 loss')
-        parser.add_argument('--use_sn', action='store_true')
+        parser.add_argument('--use_sn', action='store_true', help='使用谱归一化')
         parser.add_argument('--use_amp', action='store_true', help='use amp')
+        parser.add_argument('--edge', action='store_true', help='use edge loss')
         parser.add_argument('--float16', action='store_true', help='use float16')
         parser.add_argument('--d-layers', type=int, default=3, help='Discriminator conv layers')
 

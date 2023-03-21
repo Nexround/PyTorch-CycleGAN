@@ -133,6 +133,8 @@ if __name__ == '__main__':
 
             real_A = batch['A'].to('cuda')
             real_B = batch['B'].to('cuda')
+            if opt.edge:
+                edge_B = batch['edge'].to('cuda')
 
             ###### Generators A2B and B2A ######
             optimizer_G.zero_grad()
@@ -216,8 +218,9 @@ if __name__ == '__main__':
                 loss_D_B.append(loss_D_fake)
 
                 if opt.edge:
-                    
-                    loss_edge = criterion_edge(B_face[1], A_face[1])
+                    edge_result = netD_B(edge_B) # 对边缘模糊的图像进行判别
+
+                    loss_edge = criterion_edge(edge_result, target_fake)
                     loss_D_B.append(loss_edge)
 
 

@@ -13,6 +13,8 @@ class ImageDataset(Dataset):
         self.unaligned = unaligned
         self.files_A = sorted(glob.glob(self.opt.A + '/*.*'))
         self.files_B = sorted(glob.glob(self.opt.B + '/*.*'))
+        if opt.edge:
+            self.files_edge = sorted(glob.glob(self.opt.edge_path + '/*.*'))
         # self.files_A = sorted(glob.glob(os.path.join(root, '%sA' % mode) + '/*.*'))
         # self.files_B = sorted(glob.glob(os.path.join(root, '%sB' % mode) + '/*.*'))
 
@@ -31,8 +33,9 @@ class ImageDataset(Dataset):
             item_B = self.transform(Image.open(self.files_B[random.randint(0, len(self.files_B) - 1)]).convert('RGB'))
         else:
             item_B = self.transform(Image.open(self.files_B[index % len(self.files_B)]).convert('RGB'))
-
-        return {'A': item_A, 'B': item_B}
+            
+        item_edge = self.transform(Image.open(self.files_edge[index % len(self.files_edge)]).convert('RGB'))
+        return {'A': item_A, 'B': item_B, 'edge': item_edge}
 
     def __len__(self):
         """Return the total number of images in the dataset."""
