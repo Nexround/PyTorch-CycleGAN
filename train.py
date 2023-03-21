@@ -72,6 +72,7 @@ if __name__ == '__main__':
     criterion_cycle = torch.nn.L1Loss()
     criterion_identity = torch.nn.L1Loss()
     criterion_content = torch.nn.L1Loss()
+    criterion_edge = torch.nn.BCELoss()
 
     # Optimizers & LR schedulers
     optimizer_G = torch.optim.Adam(itertools.chain(netG_A2B.parameters(), netG_B2A.parameters()),
@@ -128,6 +129,7 @@ if __name__ == '__main__':
             # Set model input
             loss_G = []
             loss_D = []
+            loss_D_B = []
 
             real_A = batch['A'].to('cuda')
             real_B = batch['B'].to('cuda')
@@ -205,14 +207,22 @@ if __name__ == '__main__':
                 # Real loss
                 pred_real = netD_B(real_B)
                 loss_D_real = criterion_GAN(pred_real, target_real)
+                loss_D_B.append(loss_D_real)
 
                 # Fake loss
                 fake_B = fake_B_buffer.push_and_pop(fake_B)
                 pred_fake = netD_B(fake_B.detach())
                 loss_D_fake = criterion_GAN(pred_fake, target_fake)
+                loss_D_B.append(loss_D_fake)
+
+                if opt.edge:
+                    
+                    loss_edge = criterion_edge(B_face[1], A_face[1])
+                    loss_D_B.append(loss_edge)
+
 
                 # Total loss
-                loss_D_B = (loss_D_real + loss_D_fake)*0.5
+                loss_D_B = sum(loss_D_B)*0.5
 
 
             if opt.use_amp:

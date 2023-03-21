@@ -28,7 +28,8 @@ def edge_promoting(root, save):
             gauss_img[idx[0][i], idx[1][i], 1] = np.sum(np.multiply(pad_img[idx[0][i]:idx[0][i] + kernel_size, idx[1][i]:idx[1][i] + kernel_size, 1], gauss))
             gauss_img[idx[0][i], idx[1][i], 2] = np.sum(np.multiply(pad_img[idx[0][i]:idx[0][i] + kernel_size, idx[1][i]:idx[1][i] + kernel_size, 2], gauss))
 
-        result = np.concatenate((rgb_img, gauss_img), 1)
+        # result = np.concatenate((rgb_img, gauss_img), 1)
+        result = gauss_img
 
         cv2.imwrite(os.path.join(save, str(n) + '.png'), result)
         n += 1
