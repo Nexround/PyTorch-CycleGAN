@@ -36,7 +36,8 @@ def edge_promoting(root, save):
         n += 1
 
 if __name__ == '__main__':
-    opt = argparse.ArgumentParser()
-    opt.add_argument('--root', type=str, default='conversion/target')
-    opt.add_argument('--save', type=str, default='conversion/result')
+    parser  = argparse.ArgumentParser()
+    parser.add_argument('--root', type=str, default='conversion/target')
+    parser.add_argument('--save', type=str, default='conversion/result')
+    opt = parser.parse_args()
     edge_promoting(opt.root, opt.save)
