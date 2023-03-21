@@ -157,12 +157,12 @@ if __name__ == '__main__':
                 # Identity loss
                 # G_A2B(B) should equal B if real B is fed
                 same_B = netG_A2B(real_B)
-                loss_identity_B = criterion_identity(same_B, real_B) # 5.0
+                loss_identity_B = criterion_identity(same_B, real_B) * opt.lambda_A * opt.lambda_identity
                 loss_G.append(loss_identity_B)
 
                 # G_B2A(A) should equal A if real A is fed
                 same_A = netG_B2A(real_A)
-                loss_identity_A = criterion_identity(same_A, real_A) # 5.0
+                loss_identity_A = criterion_identity(same_A, real_A) * opt.lambda_B * opt.lambda_identity
                 loss_G.append(loss_identity_A)
 
                 # GAN loss
@@ -178,11 +178,11 @@ if __name__ == '__main__':
 
                 # Cycle loss
                 recovered_A = netG_B2A(fake_B)
-                loss_cycle_ABA = criterion_cycle(recovered_A, real_A) # 10.0
+                loss_cycle_ABA = criterion_cycle(recovered_A, real_A) * opt.lambda_A
                 loss_G.append(loss_cycle_ABA)
 
                 recovered_B = netG_A2B(fake_A)
-                loss_cycle_BAB = criterion_cycle(recovered_B, real_B) # 10.0
+                loss_cycle_BAB = criterion_cycle(recovered_B, real_B) * opt.lambda_B
                 loss_G.append(loss_cycle_BAB)
 
                 # Content loss
