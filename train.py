@@ -62,7 +62,6 @@ if __name__ == '__main__':
 
     nets = [netG_A2B, netG_B2A, netD_A, netD_B]
 
-    torch.backends.cudnn.benchmark = True
 
     if opt.vgg:
         VGG = VGG19(init_weights=opt.vgg_model, feature_mode=True)
