@@ -72,7 +72,7 @@ if __name__ == '__main__':
     criterion_cycle = torch.nn.L1Loss()
     criterion_identity = torch.nn.L1Loss()
     criterion_content = torch.nn.L1Loss()
-    criterion_edge = torch.nn.BCELoss()
+    criterion_edge = torch.nn.BCEWithLogitsLoss()
 
     # Optimizers & LR schedulers
     optimizer_G = torch.optim.Adam(itertools.chain(netG_A2B.parameters(), netG_B2A.parameters()),
