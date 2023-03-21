@@ -2,6 +2,7 @@ import cv2, os
 import numpy as np
 from tqdm import tqdm
 import time 
+import argparse
 
 def edge_promoting(root, save):
     file_list = os.listdir(root)
@@ -35,6 +36,7 @@ def edge_promoting(root, save):
         n += 1
 
 if __name__ == '__main__':
-    root = 'conversion/target'
-    save = 'conversion/result/'+str(time.time())
-    edge_promoting(root, save)
+    opt = argparse.ArgumentParser()
+    opt.add_argument('--root', type=str, default='conversion/target')
+    opt.add_argument('--save', type=str, default='conversion/result')
+    edge_promoting(opt.root, opt.save)
