@@ -2,6 +2,7 @@
 
 import itertools
 from tqdm import tqdm
+import os 
 
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
@@ -270,6 +271,8 @@ if __name__ == '__main__':
         lr_scheduler_D_B.step()
 
         # Save models checkpoints
+        if not os.path.isdir('output'):
+            os.makedirs('output')
         torch.save(netG_A2B.state_dict(), 'output/'+opt.name + '_netG_A2B.pth')
         torch.save(netG_B2A.state_dict(), 'output/'+opt.name + '_netG_B2A.pth')
         torch.save(netD_A.state_dict(), 'output/'+opt.name + '_netD_A.pth')
