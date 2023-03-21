@@ -20,6 +20,17 @@ from contextlib import contextmanager
 
 import wandb
 
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+
+seed = 3407
+
 @contextmanager
 def mixed_precision_context(amp):
     if amp:
@@ -29,7 +40,7 @@ def mixed_precision_context(amp):
         yield
 
 if __name__ == '__main__':
-
+    set_seed(seed)
     opt = BaseOptions().parse()
 
     if opt.use_wandb:
