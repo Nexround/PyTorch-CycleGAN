@@ -36,7 +36,8 @@ class ImageDataset(Dataset):
             
         if self.opt.edge:
             item_edge = self.transform(Image.open(self.files_edge[index % len(self.files_edge)]).convert('RGB'))
-        return {'A': item_A, 'B': item_B, 'edge': item_edge}
+            return {'A': item_A, 'B': item_B, 'edge': item_edge}
+        return {'A': item_A, 'B': item_B}
 
     def __len__(self):
         """Return the total number of images in the dataset."""
