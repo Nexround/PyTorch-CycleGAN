@@ -56,7 +56,7 @@ class _Discriminator(nn.Module):
 
         return output
     
-class Discriminator(nn.Module):
+class _Discriminator(nn.Module):
     def __init__(self, opt):
         super(Discriminator, self).__init__()
         self.bias = False
@@ -114,7 +114,8 @@ class Discriminator(nn.Module):
 
     def forward(self, img):
         return self.discriminate(img)
-class _Discriminator(nn.Module):
+    
+class Discriminator(nn.Module):
     def __init__(self, opt):
         super(Discriminator, self).__init__()
         channels = 32
@@ -141,6 +142,32 @@ class _Discriminator(nn.Module):
         ]
 
         self.model = nn.Sequential(*model)
+
+        if opt.use_sn:
+            for i in range(len(model)):
+                if isinstance(model[i], nn.Conv2d):
+                    model[i] = spectral_norm(model[i])
+
+        self.initialize_weights(self)
+
+    def initialize_weights(self,net):
+        for m in net.modules():
+            try:
+                if isinstance(m, nn.Conv2d):
+                    m.weight.data.normal_(0, 0.02)
+                    m.bias.data.zero_()
+                elif isinstance(m, nn.ConvTranspose2d):
+                    m.weight.data.normal_(0, 0.02)
+                    m.bias.data.zero_()
+                elif isinstance(m, nn.Linear):
+                    m.weight.data.normal_(0, 0.02)
+                    m.bias.data.zero_()
+                elif isinstance(m, nn.BatchNorm2d):
+                    m.weight.data.fill_(1)
+                    m.bias.data.zero_()
+            except Exception as e:
+                # print(f'SKip layer {m}, {e}')
+                pass
 
     def forward(self, x):
         x =  self.model(x)
