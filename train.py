@@ -67,9 +67,6 @@ if __name__ == '__main__':
         VGG = VGG19(init_weights=opt.vgg_model, feature_mode=True)
         VGG.eval()
         nets.append(VGG)
-    if opt.float16:
-        for net in nets:
-            net.to(torch.float16)
     if opt.cuda:
         for net in nets:
             net.cuda()
@@ -102,8 +99,7 @@ if __name__ == '__main__':
 
     # Inputs & targets memory allocation
     # Tensor = torch.cuda.HalfTensor if opt.cuda else torch.Tensor
-    input_A = Tensor(opt.batch_size, opt.input_nc, opt.size, opt.size).cuda()
-    input_B = Tensor(opt.batch_size, opt.output_nc, opt.size, opt.size).cuda()
+
     # target_real = Variable(Tensor(opt.batch_size).fill_(1.0), requires_grad=False)
     # 必须根据每个batch的大小来定义target_real的大小 否则可能会在最后一个batch出错，即数量不满足batch_size
     target_real = Tensor(opt.batch_size, 1).fill_(1.0).cuda()

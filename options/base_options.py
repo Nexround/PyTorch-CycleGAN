@@ -59,7 +59,6 @@ class BaseOptions():
         parser.add_argument('--use_sn', action='store_true', help='使用谱归一化')
         parser.add_argument('--use_amp', action='store_true', help='use amp')
         parser.add_argument('--edge', action='store_true', help='use edge loss')
-        parser.add_argument('--float16', action='store_true', help='use float16')
         parser.add_argument('--d-layers', type=int, default=3, help='Discriminator conv layers')
         parser.add_argument('--lambda_A', type=float, default=10.0, help='weight for cycle loss (A -> B -> A)')
         parser.add_argument('--lambda_B', type=float, default=10.0, help='weight for cycle loss (B -> A -> B)')
