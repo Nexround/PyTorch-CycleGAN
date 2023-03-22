@@ -127,6 +127,41 @@ if __name__ == '__main__':
     '''
     ###################################
     scaler = GradScaler()
+    ###### Pre-train ######
+    if opt.pretrain:
+        print('Pre-training...')
+        for epoch in range(opt.pretrain_epoch):
+            for batch in tqdm(dataloader, desc='Epoch %d/%d' % (epoch, opt.pretrain_epoch)):
+                # Set model input
+                real_A = batch['A'].to('cuda')
+                real_B = batch['B'].to('cuda')
+                
+                ###### Discriminator A ######
+                optimizer_D_A.zero_grad()
+
+                # Real loss
+                pred_real = netD_A(real_A)
+                loss_real = criterion_GAN(pred_real, target_real)
+
+                # Total loss
+                loss_D_A = loss_real
+
+                loss_D_A.backward()
+                optimizer_D_A.step()
+
+                ###### Discriminator B ######
+                optimizer_D_B.zero_grad()
+
+                # Real loss
+                pred_real = netD_B(real_B)
+                loss_real = criterion_GAN(pred_real, target_real)
+
+                # Total loss
+                loss_D_B = loss_real
+
+                loss_D_B.backward()
+                optimizer_D_B.step()
+
     ###### Training ######
     for epoch in range(opt.epoch, opt.n_epochs):
         for batch in tqdm(dataloader, desc='Epoch %d/%d' % (epoch, opt.n_epochs)):
