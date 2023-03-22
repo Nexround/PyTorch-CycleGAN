@@ -161,6 +161,7 @@ if __name__ == '__main__':
 
                 loss_D_B.backward()
                 optimizer_D_B.step()
+            wandb.log({'Pretrain_D_A': loss_D_A, 'Pretrain_D_B': loss_D_B})
 
     ###### Training ######
     for epoch in range(opt.epoch, opt.n_epochs):
