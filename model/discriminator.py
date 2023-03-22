@@ -56,7 +56,7 @@ class _Discriminator(nn.Module):
 
         return output
     
-class _Discriminator(nn.Module):
+class Discriminator(nn.Module):
     def __init__(self, opt):
         super(Discriminator, self).__init__()
         self.bias = False
@@ -67,7 +67,7 @@ class _Discriminator(nn.Module):
             nn.LeakyReLU(0.2, True)
         ]
 
-        for i in range(opt.d_layers):
+        for i in range(2): # opt.d_layers
             layers += [
                 nn.Conv2d(channels, channels * 2, kernel_size=3, stride=2, padding=1, bias=self.bias),
                 nn.LeakyReLU(0.2, True),
@@ -147,7 +147,7 @@ class _Discriminator(nn.Module):
         # Average pooling and flatten
         return F.avg_pool2d(x, x.size()[2:]).view(x.size()[0], -1)
 
-class Discriminator(nn.Module):
+class _Discriminator(nn.Module):
     def __init__(self, opt): # CycleGAN原始鉴别器
         super(Discriminator, self).__init__()
         input_nc = 3
