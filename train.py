@@ -169,12 +169,12 @@ if __name__ == '__main__':
                 # GAN loss
                 fake_B = netG_A2B(real_A)
                 pred_fake = netD_B(fake_B)
-                loss_GAN_A2B = criterion_GAN(pred_fake, target_real)
+                loss_GAN_A2B = criterion_GAN(pred_fake, target_real) * opt.lambda_A2B
                 loss_G.append(loss_GAN_A2B)
 
                 fake_A = netG_B2A(real_B)
                 pred_fake = netD_A(fake_A)
-                loss_GAN_B2A = criterion_GAN(pred_fake, target_real)
+                loss_GAN_B2A = criterion_GAN(pred_fake, target_real) * opt.lambda_B2A
                 loss_G.append(loss_GAN_B2A)
 
                 # Cycle loss
