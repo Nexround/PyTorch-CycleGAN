@@ -3,6 +3,7 @@
 import itertools
 from tqdm import tqdm
 import os 
+from torch.utils.tensorboard import SummaryWriter
 
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
@@ -42,6 +43,9 @@ def mixed_precision_context(amp):
 if __name__ == '__main__':
     set_seed(seed)
     opt = BaseOptions().parse()
+    if opt.tensorboard:
+        writer = SummaryWriter(log_dir=opt.tensorboard_dir)
+        global_step = 0
 
     if opt.use_wandb:
         # wandb setup
@@ -310,7 +314,9 @@ if __name__ == '__main__':
                        'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B), 'loss_GAN_A2B': loss_GAN_A2B, 'loss_GAN_B2A': loss_GAN_B2A, 
                        'loss_D_A':loss_D_A, 'loss_D_B':loss_D_B, 'loss_cycle_ABA':loss_cycle_ABA, 'loss_cycle_BAB':loss_cycle_BAB, 'loss_identity_A':loss_identity_A, 'loss_identity_B':loss_identity_B},
                       )#'Content_loss': Con_loss, , 'loss_face': loss_face
-
+        if opt.tensorboard:
+            global_step += 1
+            writer.add_scalar('LossG/train', loss_G.item(), global_step)
         # Update learning rates
         lr_scheduler_G.step()
         lr_scheduler_D_A.step()
