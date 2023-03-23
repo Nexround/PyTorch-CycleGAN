@@ -110,3 +110,5 @@ output/B/
 *.pth
 .vscode/launch.json
 .vscode/settings.json
+*.png
+*.zip

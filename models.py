@@ -121,7 +121,8 @@ class Discriminator(nn.Module):
         initialize_weights(self)
 
     def forward(self, img):
-        return self.discriminate(img)
+        x = self.discriminate(img)
+        return F.avg_pool2d(x, x.size()[2:]).view(x.size()[0], -1)
 # class Discriminator(nn.Module):
 #     def __init__(self, input_nc):
 #         super(Discriminator, self).__init__()
