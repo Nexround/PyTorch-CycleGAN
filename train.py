@@ -99,10 +99,16 @@ if __name__ == '__main__':
     # Optimizers & LR schedulers
     optimizer_G = torch.optim.Adam(itertools.chain(netG_A2B.parameters(), netG_B2A.parameters()),
                                    lr=opt.lrG if opt.TTUR else opt.lr, betas=(0.5, 0.999)) # add support to TTUR
-    optimizer_D_A = torch.optim.Adam(
-        netD_A.parameters(), lr=opt.lrD if opt.TTUR else opt.lr, betas=(0.5, 0.999))
-    optimizer_D_B = torch.optim.Adam(
-        netD_B.parameters(), lr=opt.lrD if opt.TTUR else opt.lr, betas=(0.5, 0.999))
+    # optimizer_D_A = torch.optim.Adam(
+    #     netD_A.parameters(), lr=opt.lrD if opt.TTUR else opt.lr, betas=(0.5, 0.999))
+    # optimizer_D_B = torch.optim.Adam(
+    #     netD_B.parameters(), lr=opt.lrD if opt.TTUR else opt.lr, betas=(0.5, 0.999))
+    optimizer_D_A = torch.optim.SGD(
+        netD_A.parameters(), lr=opt.lrD if opt.TTUR else opt.lr)
+    optimizer_D_B = torch.optim.SGD(
+        netD_B.parameters(), lr=opt.lrD if opt.TTUR else opt.lr)
+    
+    # optimizer_D = torch.optim.SGD(itertools.chain(netD_A.parameters(), netD_B.parameters()), lr=opt.lrD if opt.TTUR else opt.lr)
 
     lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(
         optimizer_G, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
@@ -110,6 +116,7 @@ if __name__ == '__main__':
         optimizer_D_A, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
     lr_scheduler_D_B = torch.optim.lr_scheduler.LambdaLR(
         optimizer_D_B, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
+
 
     # Inputs & targets memory allocation
     # Tensor = torch.cuda.HalfTensor if opt.cuda else torch.Tensor
