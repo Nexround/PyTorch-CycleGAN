@@ -174,20 +174,23 @@ for epoch in range(opt.epoch, opt.n_epochs):
         optimizer_D_B.step()
         ###################################
 
-    if opt.use_wandb:        
-        img_dict = {"Real A":real_A, "Real B":real_B, "Fake A":fake_A, "Fake B":fake_B, "Recovered A":recovered_A, "Recovered B":recovered_B, "Same A":same_A, "Same B":same_B}
+    if opt.use_wandb:
+        img_dict = {"Real A": real_A, "Real B": real_B, "Fake A": fake_A, "Fake B": fake_B,
+                    "Recovered A": recovered_A, "Recovered B": recovered_B, "Same A": same_A, "Same B": same_B}
         ims_dict = {}
-        for label, image in img_dict.items(): # 遍历字典 使用.items()方法
+        for label, image in img_dict.items():  # 遍历字典 使用.items()方法
             image_numpy = tensor2im(image)
             wandb_image = wandb.Image(image_numpy)
             ims_dict[label] = wandb_image
         img_list = ims_dict.values()
         result_table.add_data(epoch, *img_list)
-
+        wandb.log({"fake_A": wandb.Image(fake_A),
+                    "fake_B": wandb.Image(fake_B)})
         wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
-                    'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}, 
-                    )
-    
+                    'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B), 'loss_GAN_A2B': loss_GAN_A2B, 'loss_GAN_B2A': loss_GAN_B2A, 
+                    'loss_D_A':loss_D_A, 'loss_D_B':loss_D_B, 'loss_cycle_ABA':loss_cycle_ABA, 'loss_cycle_BAB':loss_cycle_BAB, 'loss_identity_A':loss_identity_A, 'loss_identity_B':loss_identity_B},
+                    )#'Content_loss': Con_loss, , 'loss_face': loss_face
+
     # Update learning rates
     lr_scheduler_G.step()
     lr_scheduler_D_A.step()
@@ -201,4 +204,6 @@ for epoch in range(opt.epoch, opt.n_epochs):
 ###################################
 if opt.use_wandb: 
     wandb.log({"Log": result_table})
+    wandb.save('output/netG_A2B.pth')
+    wandb.save('output/netG_B2A.pth')
 
