@@ -32,6 +32,16 @@ def set_seed(seed):
 
 seed = 3407
 
+def convert_image(img_tensor):
+    # 转换通道顺序：CHW -> HWC
+    img_tensor = img_tensor.permute(1, 2, 0)
+    
+    # 如果图像是归一化的，将其转换回 0-1 范围
+    if img_tensor.min() < 0 or img_tensor.max() > 1:
+        img_tensor = (img_tensor + 1) / 2
+    
+    return img_tensor
+
 @contextmanager
 def mixed_precision_context(amp):
     if amp:
@@ -321,7 +331,8 @@ if __name__ == '__main__':
             global_step += 1
             for label, image in img_dict.items():
                 for _, img in enumerate(image):
-                    writer.add_image('Input_images/{}'.format(label), img, global_step)
+                    img_converted = convert_image(img)
+                    writer.add_image('Input_images/{}'.format(label), img_converted, global_step)
             for label, loss in log_dict.items():
                 writer.add_scalar('Loss/{}'.format(label), loss, global_step)
 
