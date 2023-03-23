@@ -299,6 +299,9 @@ if __name__ == '__main__':
 
         img_dict = {"Real A": real_A, "Real B": real_B, "Fake A": fake_A, "Fake B": fake_B, 
                     "Recovered A": recovered_A, "Recovered B": recovered_B, "Same A": same_A, "Same B": same_B}
+        log_dict = {'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
+                       'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B), 'loss_GAN_A2B': loss_GAN_A2B, 'loss_GAN_B2A': loss_GAN_B2A, 
+                       'loss_D_A':loss_D_A, 'loss_D_B':loss_D_B, 'loss_cycle_ABA':loss_cycle_ABA, 'loss_cycle_BAB':loss_cycle_BAB, 'loss_identity_A':loss_identity_A, 'loss_identity_B':loss_identity_B}
         if opt.use_wandb:
             
             ims_dict = {}
@@ -319,15 +322,9 @@ if __name__ == '__main__':
             for label, image in img_dict.items():
                 for _, img in enumerate(image):
                     writer.add_image('Input_images/{}'.format(label), img, global_step)
-            writer.add_scalar('LossG/train', loss_G.item(), global_step)
-            # for _, img in enumerate(real_A):
-            #     writer.add_image('Input_images/Real_A', img, global_step)
-            # for _, img in enumerate(real_B):
-            #     writer.add_image('Input_images/Real_B', img, global_step)
-            # for _, img in enumerate(fake_A):
-            #     writer.add_image('Input_images/Fake_A', img, global_step)
-            # for _, img in enumerate(fake_B):
-            #     writer.add_image('Input_images/Fake_B', img, global_step)
+            for label, loss in log_dict.items():
+                writer.add_scalar('Loss/{}'.format(label), loss, global_step)
+
         # Update learning rates
         lr_scheduler_G.step()
         lr_scheduler_D_A.step()
