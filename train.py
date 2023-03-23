@@ -297,10 +297,10 @@ if __name__ == '__main__':
                 loss_D_B.backward()
                 optimizer_D_B.step()
 
-
+        img_dict = {"Real A": real_A, "Real B": real_B, "Fake A": fake_A, "Fake B": fake_B, 
+                    "Recovered A": recovered_A, "Recovered B": recovered_B, "Same A": same_A, "Same B": same_B}
         if opt.use_wandb:
-            img_dict = {"Real A": real_A, "Real B": real_B, "Fake A": fake_A, "Fake B": fake_B,
-                        "Recovered A": recovered_A, "Recovered B": recovered_B, "Same A": same_A, "Same B": same_B}
+            
             ims_dict = {}
             for label, image in img_dict.items():  # 遍历字典 使用.items()方法
                 image_numpy = tensor2im(image)
