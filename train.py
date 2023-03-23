@@ -316,7 +316,18 @@ if __name__ == '__main__':
                       )#'Content_loss': Con_loss, , 'loss_face': loss_face
         if opt.tensorboard:
             global_step += 1
+            for label, image in img_dict.items():
+                for _, img in enumerate(image):
+                    writer.add_image('Input_images/{}'.format(label), img, global_step)
             writer.add_scalar('LossG/train', loss_G.item(), global_step)
+            # for _, img in enumerate(real_A):
+            #     writer.add_image('Input_images/Real_A', img, global_step)
+            # for _, img in enumerate(real_B):
+            #     writer.add_image('Input_images/Real_B', img, global_step)
+            # for _, img in enumerate(fake_A):
+            #     writer.add_image('Input_images/Fake_A', img, global_step)
+            # for _, img in enumerate(fake_B):
+            #     writer.add_image('Input_images/Fake_B', img, global_step)
         # Update learning rates
         lr_scheduler_G.step()
         lr_scheduler_D_A.step()
