@@ -331,7 +331,7 @@ if __name__ == '__main__':
             global_step += 1
             for label, image in img_dict.items():
                 for _, img in enumerate(image):
-                    img_converted = convert_image(img)
+                    img_converted = tensor2im(img)
                     writer.add_image('Input_images/{}'.format(label), img_converted, global_step)
             for label, loss in log_dict.items():
                 writer.add_scalar('Loss/{}'.format(label), loss, global_step)
